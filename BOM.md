@@ -40,7 +40,7 @@ Each subsystem lists the chosen part, supplier, approximate cost, and a one-line
 | Subsystem | Qty | Pick | Digikey P/N | Cost (USD)* | Notes |
 |---|---|---|---|---|---|
 | Pitch faders | 2 | Bourns **PTL01-15R0-103B1** (100 mm, 10 kΩ, B-taper linear) | `PTL01-15R0-103B1-ND` | $6.10 ea / $12.20 | Full 100 mm DJ-fader length, on Digikey. Pro-audio PTL series body. |
-| Channel faders | 2 | TBD — likely Bourns `PTL45-15O0-104A3` (~$2.14 ea on Digikey) | TBD | TBD | 45 mm linear, conductive plastic. |
+| Channel faders | 2 | Bourns **PTL45-15O0-103A3** (45 mm, 10 kΩ, linear) | `118-PTL45-15O0-103A3-ND` | ~$7.52 CAD / pair | 45 mm linear, conductive plastic. 10 kΩ to match the crossfader's impedance (the alternative `-104A3` is 100 kΩ and would mix values across the panel). |
 | Crossfader | 1 | Bourns **PTL45-15O0-103B2** (45 mm, 10 kΩ, linear) | `118-PTL45-15O0-103B2-ND` | $2.57 | Best Digikey-orderable crossfader. Carbon-element wiper — will scratch eventually; route panel cutout to standard 45 mm Mini-Innofader footprint as a v2 upgrade path. |
 
 ## Encoders

@@ -13,6 +13,8 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 - LED feedback for state that the user can't otherwise see (which hotcues are set, play/sync engaged).
 - **Breadboard-prototype-able.** Every component selected for v1 must be breadboard-compatible — through-hole DIP, breakout-mounted SMD, or panel-mount with through-hole pins — so each subsystem can be proved on breadboard before a PCB is committed to. SMD-only parts without an available breakout are disqualified.
 - **Budget: ≤ $200 CAD total** for all v1 parts, including spares and mistakes. Sourcing is restricted to digikey.ca.
+- **CLI-first firmware toolchain.** Build, upload, monitor, and test the firmware from the command line — no GUI IDE required. Use **PlatformIO** as the build system, wrapped in a **Taskfile** (`Taskfile.yml`, go-task) exposing at minimum `task upload`, `task monitor`, and `task test`. Keeps the dev loop scriptable for both humans and Claude agents.
+- **Use existing libraries over reimplementation.** Default to well-maintained community libraries (Adafruit, official vendor SDKs, established Arduino/PlatformIO packages) for USB-MIDI, NeoPixel driving, MCP23017 / I²C devices, AS5600 reading, encoder decoding, and similar. Write custom code only when no library covers the requirement, or when an existing library has fundamental correctness/quality issues.
 
 ## Non-goals (v1)
 
