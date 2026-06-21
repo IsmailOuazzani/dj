@@ -37,28 +37,23 @@ Each subsystem lists the chosen part, supplier, approximate cost, and a one-line
 
 ## Faders
 
-| Subsystem | Qty | Pick | Notes |
-|---|---|---|---|
-| Pitch faders | 2 | **Open decision** | 60mm Bourns PTL60 ($2.20 ea, Digikey) vs. 100mm ALPS RSA0N (NOS, ~$15–25 ea, off-platform). |
-| Channel faders | 2 | TBD — likely Bourns `PTL45-15O0-104A3` (~$2.14 ea on Digikey) | 45 mm linear, conductive plastic. |
-| Crossfader | 1 | **Open decision** | Cheap Bourns PTL45 ($2.57, Digikey) vs. Mini Innofader Pro ($60+, off-platform, contactless). |
+| Subsystem | Qty | Pick | Digikey P/N | Cost (USD)* | Notes |
+|---|---|---|---|---|---|
+| Pitch faders | 2 | Bourns **PTL01-15R0-103B1** (100 mm, 10 kΩ, B-taper linear) | `PTL01-15R0-103B1-ND` | $6.10 ea / $12.20 | Full 100 mm DJ-fader length, on Digikey. Pro-audio PTL series body. |
+| Channel faders | 2 | TBD — likely Bourns `PTL45-15O0-104A3` (~$2.14 ea on Digikey) | TBD | TBD | 45 mm linear, conductive plastic. |
+| Crossfader | 1 | Bourns **PTL45-15O0-103B2** (45 mm, 10 kΩ, linear) | `118-PTL45-15O0-103B2-ND` | $2.57 | Best Digikey-orderable crossfader. Carbon-element wiper — will scratch eventually; route panel cutout to standard 45 mm Mini-Innofader footprint as a v2 upgrade path. |
 
 ## Encoders
 
-| Subsystem | Qty | Pick | Notes |
-|---|---|---|---|
-| Beat-loop + browse (w/ push) | 3 | TBD — likely Bourns `PEC11R-4215F-S0024` (24 PPR w/ push, ~$2.38 ea on Digikey) | Mechanical, breadboard-friendly. |
-| FX select (no push) | 1 | TBD — likely Bourns `PEC11R-4015F-S0024` (24 PPR no push, ~$2.30 ea) | |
-| Jog wheels | 2 | **Open decision** | 24 PPR mechanical PEC11R ($2.27 ea, coarse but Digikey-stocked) vs. AS5600 magnetic modules ($3–5 ea, AliExpress, 4096-step). |
+| Subsystem | Qty | Pick | Digikey P/N | Cost (USD)* | Notes |
+|---|---|---|---|---|---|
+| Beat-loop + browse (w/ push) | 3 | TBD — likely Bourns `PEC11R-4215F-S0024` (24 PPR w/ push, ~$2.38 ea) | TBD | TBD | Mechanical, breadboard-friendly. |
+| FX select (no push) | 1 | TBD — likely Bourns `PEC11R-4015F-S0024` (24 PPR no push, ~$2.30 ea) | TBD | TBD | |
+| Jog wheels | 2 | Adafruit **AS5600 STEMMA QT breakout** (PID 6357) | `1528-6357-ND` | $5.95 ea / $11.90 | Magnetic angle sensor, 4096 steps/rev, I²C. Contactless = no detent, unlimited life. **Caveat:** requires a diametric 6 mm magnet glued to the jog spindle (sold separately on Digikey, ~$1–2 ea); mechanical bearing for the platter is on the builder. Breadboard-friendly (headers ship un-soldered). |
 
 ## Hotcue pads (RGB)
 
-**Open decision.** Two paths under consideration — see decision below.
-
-| Option | Cost | Notes |
-|---|---|---|
-| 2× Adafruit NeoTrellis 4×4 (PID 3954) | ~$34 | Pre-built PCB: 16 RGB LEDs + silicone-bumper buttons + I²C driver. No need for 16 separate switches *or* 16 individual NeoPixels. Breadboard-friendly via header pins. |
-| 16× Adafruit NeoPixel 5mm through-hole (PID 1938) + 16 panel switches | ~$20 LEDs + switches counted under Misc Switches | Maximum layout freedom; significantly more soldering. |
+**Open decision — re-research in progress.** Earlier candidate (Adafruit NeoTrellis 4×4) was rejected because it ships as a bare PCB; the silicone elastomer that gives it pad-feel is a separate SKU (Adafruit PID 1611). Looking for alternatives where the **button and LED are integrated as a single part, ready to press out of the box**. Candidates being evaluated: NeoTrellis + elastomer combo, RGB illuminated tactile switches (single-SKU button+LED), arcade-style RGB pushbuttons, and any other pre-assembled RGB-pad modules carried by digikey.ca.
 
 ## Misc switches (non-hotcue buttons)
 
@@ -76,16 +71,14 @@ Each subsystem lists the chosen part, supplier, approximate cost, and a one-line
 
 ## Running cost estimate
 
-| Status | Total |
-|---|---|
-| Locked (MCU + button expanders + pot mux) | **~$11.71** (MCU already on hand) |
-| Likely Digikey-only basic build (per BOM agent's full estimate) | **~$71** |
-| Realistic w/ shortcuts (AS5600 jogs, NeoTrellis) | **$90–110** |
-| Premium (Innofader, decent jog encoders) | **$150–180** |
+\* All prices in this document quoted as **USD from digikey.com**, from the research agents' findings. Actual ordering happens on **digikey.ca in CAD** — rough conversion: USD × 1.35 ≈ CAD. Budget per SPEC.md is **≤ $200 CAD total**.
+
+| Status | Total USD | Approx CAD |
+|---|---|---|
+| Locked subtotal so far (MCP23017 + CD4067 breakout + pitch faders + crossfader + AS5600 jogs) | **~$38.78** | ~$52 |
+| Plus likely Digikey-only basic remaining (pots, encoders, channel faders, tactiles, USB, hotcue pads TBD) | **~$70 total all-in** | ~$95 |
+| Headroom against $200 CAD budget | | **~$105 CAD** |
 
 ## Open decisions
 
-1. **Hotcue pads** — NeoTrellis (×2, ~$34) vs. individual NeoPixels + 16 panel switches. NeoTrellis simplifies the build massively but locks in its pad layout.
-2. **Pitch fader length** — 60mm Bourns (Digikey, $2.20) vs. 100mm ALPS NOS (eBay/AliExpress, $15–25). Full DJ feel only at 100mm.
-3. **Crossfader** — Bourns PTL45 (Digikey, $2.57, carbon-track, will scratch) vs. Mini Innofader Pro ($60+, contactless, lifetime).
-4. **Jog encoder** — Bourns PEC11R 24-PPR mechanical (Digikey, $2.27 ea, coarse) vs. AS5600 magnetic modules from AliExpress ($3–5 ea, 4096-step, off-platform).
+1. **Hotcue pads** — re-research in progress for integrated-button-and-LED options (see Hotcue pads section above).
