@@ -11,6 +11,7 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 - Primary host integration: **Mixxx**. The mapping is the source of truth for what each control does.
 - Tactile feel approaching commercial entry/mid-range controllers (long pitch fader, real crossfader, real channel faders, clicky encoders).
 - LED feedback for state that the user can't otherwise see (which hotcues are set, play/sync engaged).
+- **Breadboard-prototype-able.** Every component selected for v1 must be breadboard-compatible — through-hole DIP, breakout-mounted SMD, or panel-mount with through-hole pins — so each subsystem can be proved on breadboard before a PCB is committed to. SMD-only parts without an available breakout are disqualified.
 
 ## Non-goals (v1)
 
