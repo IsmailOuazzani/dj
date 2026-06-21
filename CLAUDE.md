@@ -2,10 +2,16 @@
 
 A from-scratch personal build of a DJ controller. Scope (hardware vs. software split, language, frameworks) is not yet decided — ask before adding tooling or dependencies.
 
+## Working rules
+
+- **Never `git commit` without being asked.** Make file edits freely, but leave them uncommitted. Wait for an explicit "commit" before staging.
+
 ## Parts research rules (Digikey)
+
+**Sourcing constraint: Digikey Canada (digikey.ca) only, prices in CAD.** All v1 parts must be orderable through digikey.ca. The user is in Canada — quote CAD, link to digikey.ca product pages, and don't recommend off-platform alternatives (AliExpress, eBay, Adafruit-direct, etc.) even when cheaper or better-feeling. Many Adafruit/SparkFun breakouts *are* carried by Digikey under their own P/Ns; check before declaring something off-platform.
 
 When pricing components for this project, agents should:
 
 1. **Filter by "In Stock" before browsing.** Many DJ-grade audio pots/faders (ALPS RSA0N, RK09K) show up but are NRND/obsolete with 20+ week lead times. Filter early to avoid dead ends.
-2. **Pivot off Digikey for pro-audio specialty parts.** Long-throw (100mm) faders, contactless crossfaders (Innofader), and high-PPR jog encoders are rarely on Digikey at hobbyist prices. If a search returns only $50+ industrial options, look at Adafruit / AliExpress / PlanetDJ / Innofader.com instead.
+2. **Check whether Adafruit/SparkFun breakouts are on Digikey before treating them as off-platform.** Many are (e.g. SparkFun BOB-09056 CD4067 breakout is Digikey `1568-09056-ND`). Search by SparkFun BOB/COM/PRT or Adafruit PID numbers.
 3. **For pot features (detent, taper), search by manufacturer-series suffix, not part number.** E.g. TT P160KN**PD** = center-detent; Same Sky PT01-D**xxx**-B**xxx** = linear B-taper. Confirm from the datasheet, not the Digikey filter.
