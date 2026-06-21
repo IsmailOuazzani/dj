@@ -26,7 +26,7 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 - **No standalone mode.** Device is useless without a host running Mixxx (or another DJ app that accepts generic MIDI).
 - **No wireless.** USB-MIDI only.
 - **No external MIDI / sync out.** USB only; no 5-pin DIN, no TRS MIDI, no clock out.
-- **No pad-mode switching.** The 8 pads per deck are hotcues only — no sampler / loop-roll / beat-jump modes.
+- **No pad-mode switching.** The 4 keys per deck are hotcues only — no sampler / loop-roll / beat-jump modes.
 - **No external power.** USB bus-powered only (no barrel jack, no PSU).
 - **No dedicated pitch-range buttons.** Pitch range (±6/10/16/25 %) is set globally in Mixxx config.
 
@@ -53,7 +53,7 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 | LOOP OUT | Button | Sets loop out point. |
 | LOOP EXIT / REENTER | Button | Exits an active loop or re-enters last loop. |
 | Beat-loop encoder | Rotary encoder w/ push | Twist to set loop length (¼, ½, 1, 2, 4… beats). Push to engage/disengage auto beat-loop. |
-| Hotcues 1–8 | 8 × RGB backlit pads | LED off = unset, lit = set. Color may indicate state (see Feedback). |
+| Hotcues 1–4 | 4 × RGB illuminated MX-style key switches | LED off = unset, lit = set. Color may indicate state (see Feedback). |
 | LOAD | Button | Loads currently-selected library track to this deck. |
 | SHIFT | Button | Held modifier. Re-maps other controls to secondary functions (see Behaviors). |
 
@@ -72,7 +72,7 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 
 ### Counts (v1 BOM-ish summary)
 
-- Buttons: 16 hotcue pads (RGB) + 2 play + 2 sync + 2 cue + 2 PFL + 2 load + 2 shift + 6 loop (3 per deck) + 1 FX on/off = **35 buttons** (16 RGB + 19 plain or single-color).
+- Buttons: 8 hotcue keys (RGB MX) + 2 play + 2 sync + 2 cue + 2 PFL + 2 load + 2 shift + 6 loop (3 per deck) + 1 FX on/off = **27 buttons** (8 RGB MX + 19 plain tactiles).
 - Faders: 2 pitch + 2 channel + 1 crossfader = **5 faders**.
 - Pots: 6 EQ + 2 filter + 1 master + 1 hp vol + 1 hp cue/mix + 1 FX level = **12 potentiometers**.
 - Encoders: 2 jog + 2 beat-loop (w/ push) + 1 browse (w/ push) + 1 FX select (no push) = **6 encoders** (3 with push-switch).
@@ -99,7 +99,7 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 SHIFT is a held modifier. While held on a given deck, that deck's controls take on secondary functions. v1 planned mappings:
 
 - SHIFT + jog → library scroll (alternative to the browse encoder).
-- SHIFT + hotcue pad → delete that hotcue.
+- SHIFT + hotcue key → delete that hotcue.
 - SHIFT + SYNC → set this deck as master sync.
 - SHIFT + LOOP IN / LOOP OUT → beat-jump backward / forward by the current beat-loop length.
 - SHIFT + PLAY → reverse play (Mixxx `reverse`).
@@ -136,7 +136,7 @@ SHIFT is per-deck (not shared) so the user can hold SHIFT on deck A while normal
 
 LED feedback is scoped to what the user genuinely can't infer from knob/fader position:
 
-- **Hotcue pads (RGB)**: off when unset, lit when set. Color reserved for future state encoding (e.g. loop hotcues vs regular). v1 may ship a single color.
+- **Hotcue keys (RGB)**: off when unset, lit when set. Color reserved for future state encoding (e.g. loop hotcues vs regular). v1 may ship a single color.
 - **PLAY**: lit when the deck is playing.
 - **SYNC**: lit when sync is engaged.
 - **FX ON/OFF**: lit when the effect unit is enabled.
@@ -151,10 +151,10 @@ The host (Mixxx) drives LED state via outgoing MIDI messages defined in the mapp
 These will be decided as hardware selection progresses. Listed here so they have a home.
 
 - **Microcontroller / dev board**: TBD. Needs USB-MIDI class-compliant support, enough GPIO/ADC channels for the matrix + analog reads, and an ecosystem the user is comfortable with. Candidates to consider: Raspberry Pi Pico (RP2040), Teensy 4.x, STM32 (Blue/Black Pill class).
-- **Button scanning (35 buttons)**: matrix vs. shift-register vs. I/O expander (MCP23017 etc.). Depends on chosen MCU's pin budget.
+- **Button scanning (27 buttons)**: matrix vs. shift-register vs. I/O expander (MCP23017 etc.). Depends on chosen MCU's pin budget.
 - **Analog inputs (12 pots + 2 pitch faders + 2 channel faders + 1 crossfader = 17 analog signals)**: depending on MCU ADC channel count, may require a CD4051/CD4067 analog mux.
 - **Encoders (6 total, 2 high-res jog)**: jog wheels likely benefit from dedicated quadrature decoding (PIO on RP2040, or a hardware encoder peripheral on STM32). Beat-loop, browse, and FX-select encoders can be polled.
-- **RGB LEDs (16 hotcue pads)**: WS2812 chain is the cheap path; a dedicated driver is the robust path. USB bus power budget (500 mA on USB 2.0) constrains LED brightness — current limiting in firmware is mandatory.
+- **RGB LEDs (8 hotcue keys)**: WS2812 chain is the cheap path; a dedicated driver is the robust path. USB bus power budget (500 mA on USB 2.0) constrains LED brightness — current limiting in firmware is mandatory.
 - **Enclosure**: TBD. Likely laser-cut acrylic + 3D-printed knob caps, or a milled aluminum panel.
 - **Firmware framework**: TBD. Arduino, PlatformIO, or bare HAL — depends on MCU.
 
