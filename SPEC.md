@@ -21,6 +21,10 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 - **No 4-deck support.** Two physical decks, two channels, no deck-switching.
 - **No standalone mode.** Device is useless without a host running Mixxx (or another DJ app that accepts generic MIDI).
 - **No wireless.** USB-MIDI only.
+- **No external MIDI / sync out.** USB only; no 5-pin DIN, no TRS MIDI, no clock out.
+- **No pad-mode switching.** The 8 pads per deck are hotcues only — no sampler / loop-roll / beat-jump modes.
+- **No external power.** USB bus-powered only (no barrel jack, no PSU).
+- **No dedicated pitch-range buttons.** Pitch range (±6/10/16/25 %) is set globally in Mixxx config.
 
 ---
 
@@ -47,6 +51,7 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 | Beat-loop encoder | Rotary encoder w/ push | Twist to set loop length (¼, ½, 1, 2, 4… beats). Push to engage/disengage auto beat-loop. |
 | Hotcues 1–8 | 8 × RGB backlit pads | LED off = unset, lit = set. Color may indicate state (see Feedback). |
 | LOAD | Button | Loads currently-selected library track to this deck. |
+| SHIFT | Button | Held modifier. Re-maps other controls to secondary functions (see Behaviors). |
 
 ### Shared / mixer section
 
@@ -57,17 +62,16 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 | Headphone volume | Rotary potentiometer | Headphone level in Mixxx. |
 | Headphone cue/mix | Rotary potentiometer | Blend between PFL'd deck(s) and master in the headphones. |
 | Browse encoder | Rotary encoder w/ push | Twist to scroll library; push to expand/collapse or focus. (Load A / Load B happen via per-deck LOAD buttons, not the encoder.) |
-| FX SELECT | TBD (see open questions) | Picks the active effect from Mixxx's effect list. |
+| FX SELECT | Rotary encoder (no push) | Twist to cycle through Mixxx's effect list. No push; FX ON/OFF stays a dedicated button. |
 | FX LEVEL | Rotary potentiometer | Wet/dry (Mixxx super knob). |
 | FX ON/OFF | Backlit button | Enables/disables the effect unit. LED reflects state. |
 
 ### Counts (v1 BOM-ish summary)
 
-- Buttons: 16 hotcue pads (RGB) + 2 play + 2 sync + 2 cue + 2 PFL + 2 load + 6 loop (3 per deck) + 1 FX on/off = **33 buttons** (16 RGB + 17 plain or single-color).
+- Buttons: 16 hotcue pads (RGB) + 2 play + 2 sync + 2 cue + 2 PFL + 2 load + 2 shift + 6 loop (3 per deck) + 1 FX on/off = **35 buttons** (16 RGB + 19 plain or single-color).
 - Faders: 2 pitch + 2 channel + 1 crossfader = **5 faders**.
 - Pots: 6 EQ + 2 filter + 1 master + 1 hp vol + 1 hp cue/mix + 1 FX level = **12 potentiometers**.
-- Encoders: 2 jog + 2 beat-loop (w/ push) + 1 browse (w/ push) = **5 encoders** (3 with push-switch).
-- FX select control: TBD (1 encoder or 2 buttons) — see Appendix B.
+- Encoders: 2 jog + 2 beat-loop (w/ push) + 1 browse (w/ push) + 1 FX select (no push) = **6 encoders** (3 with push-switch).
 
 ---
 
@@ -85,7 +89,18 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 
 ### Jog
 - Free rotation: pitch bend (nudge) while the deck is playing.
-- (Future: shift+jog = library scroll. Defer until a shift button is decided — see open questions.)
+- SHIFT + jog: scroll library (see Shift).
+
+### Shift (per deck)
+SHIFT is a held modifier. While held on a given deck, that deck's controls take on secondary functions. v1 planned mappings:
+
+- SHIFT + jog → library scroll (alternative to the browse encoder).
+- SHIFT + hotcue pad → delete that hotcue.
+- SHIFT + SYNC → set this deck as master sync.
+- SHIFT + LOOP IN / LOOP OUT → beat-jump backward / forward by the current beat-loop length.
+- SHIFT + PLAY → reverse play (Mixxx `reverse`).
+
+SHIFT is per-deck (not shared) so the user can hold SHIFT on deck A while normally operating deck B.
 
 ### EQ / Filter
 - Three-band EQ per deck. Cut-only or kill-style behavior is up to the Mixxx EQ preset.
@@ -93,9 +108,13 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 
 ### FX
 - One shared FX unit assigned to whichever deck(s) the user chooses (Mixxx FX1 by default, with both decks assigned).
-- **FX SELECT** cycles through Mixxx's available effects for the active unit.
+- **FX SELECT** (encoder): twist to cycle Mixxx's effect list for the active unit. CW = next, CCW = previous.
 - **FX LEVEL** = super-knob (wet/dry + tied parameters).
 - **FX ON/OFF** toggles the unit. LED reflects state.
+
+### Tempo / pitch
+- Pitch fader sets deck tempo offset.
+- Pitch range (±6/10/16/25 %) is set globally in Mixxx config. No controller-side range button.
 
 ### Browse / load
 - Browse encoder scrolls the library tree/list in Mixxx.
@@ -128,18 +147,13 @@ The host (Mixxx) drives LED state via outgoing MIDI messages defined in the mapp
 These will be decided as hardware selection progresses. Listed here so they have a home.
 
 - **Microcontroller / dev board**: TBD. Needs USB-MIDI class-compliant support, enough GPIO/ADC channels for the matrix + analog reads, and an ecosystem the user is comfortable with. Candidates to consider: Raspberry Pi Pico (RP2040), Teensy 4.x, STM32 (Blue/Black Pill class).
-- **Button scanning**: matrix vs. shift-register vs. I/O expander (MCP23017 etc.). Depends on chosen MCU's pin budget.
-- **Analog inputs (12 pots + 2 pitch faders + 1 channel fader pair + crossfader = 16 analog signals)**: depending on MCU ADC channel count, may require a CD4051/CD4067 analog mux.
-- **Encoders (5 total, 2 high-res jog)**: jog wheels likely benefit from dedicated quadrature decoding (PIO on RP2040, or a hardware encoder peripheral on STM32). Beat-loop and browse encoders can be polled.
-- **RGB LEDs (16 hotcue pads)**: WS2812 chain is the cheap path; a dedicated driver is the robust path.
+- **Button scanning (35 buttons)**: matrix vs. shift-register vs. I/O expander (MCP23017 etc.). Depends on chosen MCU's pin budget.
+- **Analog inputs (12 pots + 2 pitch faders + 2 channel faders + 1 crossfader = 17 analog signals)**: depending on MCU ADC channel count, may require a CD4051/CD4067 analog mux.
+- **Encoders (6 total, 2 high-res jog)**: jog wheels likely benefit from dedicated quadrature decoding (PIO on RP2040, or a hardware encoder peripheral on STM32). Beat-loop, browse, and FX-select encoders can be polled.
+- **RGB LEDs (16 hotcue pads)**: WS2812 chain is the cheap path; a dedicated driver is the robust path. USB bus power budget (500 mA on USB 2.0) constrains LED brightness — current limiting in firmware is mandatory.
 - **Enclosure**: TBD. Likely laser-cut acrylic + 3D-printed knob caps, or a milled aluminum panel.
 - **Firmware framework**: TBD. Arduino, PlatformIO, or bare HAL — depends on MCU.
 
 ## Appendix B — Open questions
 
-1. **FX SELECT form factor**: rotary encoder (twist to cycle) or two buttons (prev/next)? Encoder is one part but harder to reflect state without a screen; buttons are dumb-simple. *Default if undecided: 2 buttons.*
-2. **Pitch range buttons**: real Pioneer gear has ±6/10/16/25 % pitch-range toggle buttons. Worth a button per deck, or set globally in Mixxx and forget?
-3. **Shift / secondary function**: many controllers have a shift button per deck that doubles every other control. v1 doesn't currently include one. Worth adding for free (one extra button per deck) to enable library scroll via jog, etc.?
-4. **Pad mode switching**: 8 hotcue pads is the v1 scope. Some controllers re-purpose pads for sampler/loop-roll/beat-jump via a mode-select row. Out of scope for v1, but pad-mode mapping affordances should be considered if pad-mode keys are added later.
-5. **Hardware MIDI clock / sync out**: not in scope, but flag in case future external gear (drum machine) is contemplated.
-6. **Power**: USB bus-powered, or auxiliary 5 V/9 V supply? Affects LED brightness and total current budget.
+*All v1 layout questions resolved. Remaining unknowns are hardware-implementation choices captured in Appendix A.*
