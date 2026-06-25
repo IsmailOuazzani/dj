@@ -8,7 +8,8 @@
       status  = 0xB0  (Control Change, MIDI channel 1)
       cc#     = 21
       value   = 0..127 (12-bit ADC scaled down to 7 bits)
-  This file maps that CC to Deck 1's volume fader in Mixxx.
+  This file maps that CC to Deck 1's Quick Effect super knob in Mixxx
+  (the "filter"/super knob on the deck-1 quick-effect rack).
 
   Mixxx matches a mapping to a connected device by the <controller id="..."> attribute
   below — it must equal the USB product string the device advertises. The firmware
@@ -24,13 +25,13 @@
     <info>
         <name>ISMA 3000</name>
         <author>ismail</author>
-        <description>v0 validation mapping: single pot on CC21/ch1 -&gt; [Channel1] volume.</description>
+        <description>v0 validation mapping: single pot on CC21/ch1 -&gt; deck 1 Quick Effect super knob.</description>
     </info>
     <controller id="ISMA 3000">
         <controls>
             <control>
-                <group>[Channel1]</group>
-                <key>volume</key>
+                <group>[QuickEffectRack1_[Channel1]]</group>
+                <key>super1</key>
                 <status>0xB0</status>
                 <midino>0x15</midino>
                 <options>
