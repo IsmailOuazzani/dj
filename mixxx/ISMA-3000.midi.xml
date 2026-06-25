@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ISMA 3000 — v0 validation mapping.
+
+  Single CC binding used to prove the USB-MIDI plumbing end-to-end before the
+  rest of the control surface lands. The firmware (firmware/src/main.cpp) reads
+  a pot on A0 and emits one Control Change per change:
+      status  = 0xB0  (Control Change, MIDI channel 1)
+      cc#     = 21
+      value   = 0..127 (12-bit ADC scaled down to 7 bits)
+  This file maps that CC to Deck 1's volume fader in Mixxx.
+
+  Mixxx matches a mapping to a connected device by the <controller id="..."> attribute
+  below — it must equal the USB product string the device advertises. The firmware
+  sets USB_PRODUCT="ISMA 3000" via build_flags in platformio.ini.
+
+  Docs used while authoring:
+    https://github.com/mixxxdj/mixxx/wiki/Midi-Controller-Mapping-File-Format
+    https://github.com/mixxxdj/mixxx/wiki/Contributing-Mappings
+    https://github.com/mixxxdj/mixxx/wiki/Controller-Mapping-File-Locations
+    https://manual.mixxx.org/2.4/en/chapters/controlling_mixxx.html
+-->
+<MixxxControllerPreset mixxxVersion="2.4" schemaVersion="1">
+    <info>
+        <name>ISMA 3000</name>
+        <author>ismail</author>
+        <description>v0 validation mapping: single pot on CC21/ch1 -&gt; [Channel1] volume.</description>
+    </info>
+    <controller id="ISMA 3000">
+        <controls>
+            <control>
+                <group>[Channel1]</group>
+                <key>volume</key>
+                <status>0xB0</status>
+                <midino>0x15</midino>
+                <options>
+                    <Normal/>
+                </options>
+            </control>
+        </controls>
+        <outputs>
+        </outputs>
+    </controller>
+</MixxxControllerPreset>

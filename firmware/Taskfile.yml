@@ -41,6 +41,11 @@ tasks:
     cmds:
       - bash scripts/monitor-stream.sh
 
+  mixxx:sync:
+    desc: Copy mixxx/ISMA-3000.midi.xml into Mixxx's sandboxed controllers dir
+    cmds:
+      - bash setup
+
   test:
     desc: Run unit tests
     cmds:

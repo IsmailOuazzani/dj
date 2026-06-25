@@ -24,6 +24,54 @@ for formula in "${FORMULAE[@]}"; do
 done
 
 echo
-echo "done. versions:"
+echo "versions:"
 pio --version
 task --version
+
+# ---------------------------------------------------------------------------
+# Mixxx mapping copy
+#
+# Mixxx on macOS is sandboxed (org.mixxx.mixxx) and *cannot* follow symlinks
+# that point outside its container — confirmed by "Could not open xml file"
+# entries in mixxx.log when we tried `ln -s`. So we copy the file instead.
+# Re-running this script (or `task mixxx:sync`) refreshes the copy after the
+# in-repo file is edited.
+#
+# Mixxx sandboxed controllers dir:
+#   ~/Library/Containers/org.mixxx.mixxx/Data/Library/Application Support/Mixxx/controllers
+#
+# Docs:
+#   https://github.com/mixxxdj/mixxx/wiki/Controller-Mapping-File-Locations
+# ---------------------------------------------------------------------------
+echo
+echo "syncing Mixxx mapping..."
+
+# Resolve repo root from this script's location so cwd doesn't matter.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+MAPPING_SRC="$REPO_ROOT/mixxx/ISMA-3000.midi.xml"
+MIXXX_DIR="$HOME/Library/Containers/org.mixxx.mixxx/Data/Library/Application Support/Mixxx/controllers"
+MAPPING_DST="$MIXXX_DIR/ISMA-3000.midi.xml"
+
+if [[ ! -f "$MAPPING_SRC" ]]; then
+  echo "error: mapping source not found at $MAPPING_SRC" >&2
+  exit 1
+fi
+
+mkdir -p "$MIXXX_DIR"
+
+# Stale symlink from the old setup script — remove it.
+if [[ -L "$MAPPING_DST" ]]; then
+  rm "$MAPPING_DST"
+fi
+
+if [[ -f "$MAPPING_DST" ]] && cmp -s "$MAPPING_SRC" "$MAPPING_DST"; then
+  echo "ok: $MAPPING_DST already up to date"
+else
+  cp "$MAPPING_SRC" "$MAPPING_DST"
+  echo "copied $MAPPING_SRC"
+  echo "    -> $MAPPING_DST"
+fi
+
+echo
+echo "done."

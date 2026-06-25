@@ -6,6 +6,7 @@ A from-scratch personal build of a DJ controller. Scope (hardware vs. software s
 
 - **Never `git commit` without being asked.** Make file edits freely, but leave them uncommitted. Wait for an explicit "commit" before staging.
 - **Always include full pasteable URLs in hardware comparison tables.** Whenever a table compares hardware options (parts, modules, ICs, etc.), every row that names a specific part must include the **full URL** to its digikey.ca product page (or vendor product page if not on Digikey) — as **bare text**, NOT a markdown `[text](url)` hyperlink. A dedicated "Link" column is the clearest layout. The user should be able to triple-click the cell and copy the URL out.
+- **When a tool/library/toolchain behaves unexpectedly, read the docs before guessing.** If a build flag, config option, or API doesn't work the way you assumed, stop iterating — fetch the official docs, search for the specific issue (GitHub issues, community forums), and only then change the approach. Don't burn cycles trial-and-erroring quoting, ordering, or flag combinations when the answer is one WebFetch / WebSearch away.
 
 ## Parts research rules (Digikey)
 
