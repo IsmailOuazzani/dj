@@ -38,6 +38,15 @@
                     <Normal/>
                 </options>
             </control>
+            <control>
+                <group>[Channel1]</group>
+                <key>play</key>
+                <status>0x90</status>
+                <midino>0x24</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
         </controls>
         <outputs>
         </outputs>
