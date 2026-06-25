@@ -2,8 +2,8 @@ version: '3'
 
 # Wraps PlatformIO so the dev loop is scriptable from the CLI.
 # Minimum surface per SPEC.md: upload, monitor, test.
-# build/upload tee their output to .build.log so it's easy to inspect later
-# (especially the first build, which is several minutes).
+# Headless serial logging uses pio's `log2file` filter (configured in platformio.ini)
+# wrapped by scripts/monitor-start.sh so an agent / CI can tail logs/ without a TTY.
 
 tasks:
   build:
@@ -12,14 +12,34 @@ tasks:
       - set -o pipefail; pio run 2>&1 | tee .build.log
 
   upload:
-    desc: Build and flash firmware to the board (output tee'd to .build.log)
+    desc: Build and flash firmware (output tee'd to .build.log)
     cmds:
       - set -o pipefail; pio run --target upload 2>&1 | tee .build.log
 
   monitor:
-    desc: Open serial monitor (115200 baud)
+    desc: Open interactive serial monitor (needs a TTY)
     cmds:
       - pio device monitor
+
+  monitor:start:
+    desc: Start background serial logger (writes to logs/<env>-<timestamp>.log)
+    cmds:
+      - bash scripts/monitor-start.sh
+
+  monitor:stop:
+    desc: Stop background serial logger
+    cmds:
+      - bash scripts/monitor-stop.sh
+
+  monitor:logs:
+    desc: 'Show last 50 lines of the latest serial log (override: task monitor:logs -- 200)'
+    cmds:
+      - bash scripts/monitor-logs.sh {{.CLI_ARGS}}
+
+  monitor:stream:
+    desc: Live-follow the latest serial log (blocks until Ctrl-C)
+    cmds:
+      - bash scripts/monitor-stream.sh
 
   test:
     desc: Run unit tests

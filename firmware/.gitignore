@@ -3,3 +3,5 @@
 .piolibdeps/
 .vscode/
 .build.log
+.serial.pid
+logs/

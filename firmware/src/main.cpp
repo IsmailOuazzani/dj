@@ -1,14 +1,16 @@
 #include <Arduino.h>
 
-constexpr unsigned long BLINK_INTERVAL_MS = 500;
+constexpr uint8_t POT_PIN = A0;
+constexpr unsigned long PRINT_INTERVAL_MS = 100;
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(115200);
+  analogReadResolution(12);
 }
 
 void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(BLINK_INTERVAL_MS);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(BLINK_INTERVAL_MS);
+  int value = analogRead(POT_PIN);
+  Serial.print("A0: ");
+  Serial.println(value);
+  delay(PRINT_INTERVAL_MS);
 }
