@@ -1,0 +1,47 @@
+version: '3'
+
+# Wraps PlatformIO so the dev loop is scriptable from the CLI.
+# Minimum surface per SPEC.md: upload, monitor, test.
+# build/upload tee their output to .build.log so it's easy to inspect later
+# (especially the first build, which is several minutes).
+
+tasks:
+  build:
+    desc: Compile firmware (output tee'd to .build.log)
+    cmds:
+      - set -o pipefail; pio run 2>&1 | tee .build.log
+
+  upload:
+    desc: Build and flash firmware to the board (output tee'd to .build.log)
+    cmds:
+      - set -o pipefail; pio run --target upload 2>&1 | tee .build.log
+
+  monitor:
+    desc: Open serial monitor (115200 baud)
+    cmds:
+      - pio device monitor
+
+  test:
+    desc: Run unit tests
+    cmds:
+      - pio test
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - pio run --target clean
+
+  logs:
+    desc: Show last 100 lines of most recent build/upload log
+    cmds:
+      - tail -n 100 .build.log
+
+  logs:head:
+    desc: Show first 100 lines of most recent build/upload log
+    cmds:
+      - head -n 100 .build.log
+
+  logs:all:
+    desc: Show full build/upload log
+    cmds:
+      - cat .build.log
