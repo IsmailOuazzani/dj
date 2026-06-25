@@ -12,7 +12,7 @@ Components currently on hand for prototyping the DJ controller (see [SPEC.md](SP
 | Resistors | Plenty | Assorted values. For LED current limiting and pull-ups/pull-downs. |
 | Tactile buttons (kit) | Plenty | 4-pin through-hole momentary switches. Stand-ins for every button in the spec during prototyping. |
 | Small blue potentiometers | 1–2 | Hard end-stops (~270° travel) → potentiometers, not encoders. Likely small cermet/trim-style. Stand-ins for any pot in the spec during prototyping (EQ, filter, FX level, master/headphone volume). |
-| Arduino Nano RP (RP2040) | 1 | Main MCU for prototyping. Native USB → can act as a USB-MIDI device class-compliant via libraries (TinyUSB / Adafruit_TinyUSB / Arduino MIDIUSB ports). Plenty of GPIO + analog inputs for early prototypes. |
+| Arduino Nano RP (RP2040) | 1 | Main MCU for prototyping. Native USB → can act as a USB-MIDI device class-compliant via libraries (TinyUSB / Adafruit_TinyUSB / Arduino MIDIUSB ports). Plenty of GPIO + analog inputs for early prototypes. Pinout + project conventions: [hardware-docs/nano-rp2040-connect.md](hardware-docs/nano-rp2040-connect.md). |
 
 ## Philosophy
 
