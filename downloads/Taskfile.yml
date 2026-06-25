@@ -1,0 +1,25 @@
+version: '3'
+
+# Download YouTube audio into ~/Music/DJ as lossless WAV using yt-dlp + ffmpeg.
+# All tasks depend on `setup`, which is idempotent: it only does work if the
+# venv, uv, yt-dlp, or ffmpeg are missing.
+
+tasks:
+  setup:
+    desc: Idempotently provision venv (uv + yt-dlp) and ffmpeg
+    status:
+      - test -x .venv/bin/yt-dlp
+      - test -x .venv/bin/uv
+      - command -v ffmpeg
+    cmds:
+      - test -d .venv || python3 -m venv .venv
+      - .venv/bin/pip install --quiet --upgrade pip uv
+      - .venv/bin/uv pip install --python .venv/bin/python -r requirements.txt
+      - command -v ffmpeg >/dev/null || brew install ffmpeg
+
+  dl:
+    desc: 'Download YouTube audio as WAV to ~/Music/DJ (usage: task dl -- <URL>)'
+    deps: [setup]
+    cmds:
+      - mkdir -p "$HOME/Music/DJ"
+      - .venv/bin/yt-dlp -x --audio-format wav --audio-quality 0 -o "$HOME/Music/DJ/%(title)s.%(ext)s" {{.CLI_ARGS}}
