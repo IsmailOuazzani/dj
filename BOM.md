@@ -32,23 +32,23 @@ Each subsystem lists the chosen part, supplier, approximate cost, and a one-line
 
 | Subsystem | Qty | Pick | Notes |
 |---|---|---|---|
-| EQ + master + headphone + FX level pots | 10 | TBD — leaning Same Sky `PT01-D115D-B103` (10k linear, ~$0.79 ea on Digikey) | Through-hole panel-mount, B-taper (linear), adequate for non-critical pots. |
-| Filter pots (center-detent) | 2 | TBD — leaning TT Electronics `P160KNPD-4FC20B10K` (~$1.98 ea on Digikey) | "PD" suffix = center detent, matches filter HP/LP centered behavior. |
+| EQ + master + headphone + FX level pots | 10 | Same Sky `PT01-D115D-B103` (Digikey `2223-PT01-D115D-B103-ND`, ~$1.55 ea CAD qty-10) | Through-hole panel-mount, 10k B-taper (linear). Same family as the filter detent pots — single knob SKU fits all 12 positions. 3D STEP model on the Same Sky product page. 6mm D-shaft × 15mm length. https://www.digikey.ca/en/products/result?keywords=PT01-D115D-B103 |
+| Filter pots (center-detent) | 2 | Same Sky `PT01-D225D-B103` (Digikey `2223-PT01-D225D-B103-ND`, $1.33 ea) | "D2xxD" prefix in Same Sky's PT01 naming = center detent. Same family as the other 10 pots — one knob SKU fits all 12 positions. 3D STEP model published on the Same Sky product page. 6mm D-shaft × 25mm length. https://www.digikey.ca/en/products/result?keywords=PT01-D225D-B103 |
 
 ## Faders
 
 | Subsystem | Qty | Pick | Digikey P/N | Cost (USD)* | Notes |
 |---|---|---|---|---|---|
 | Pitch faders | 2 | Bourns **PTL01-15R0-103B1** (100 mm, 10 kΩ, B-taper linear) | `PTL01-15R0-103B1-ND` | $6.10 ea / $12.20 | Full 100 mm DJ-fader length, on Digikey. Pro-audio PTL series body. |
-| Channel faders | 2 | Bourns **PTL45-15O0-103A3** (45 mm, 10 kΩ, linear) | `118-PTL45-15O0-103A3-ND` | ~$7.52 CAD / pair | 45 mm linear, conductive plastic. 10 kΩ to match the crossfader's impedance (the alternative `-104A3` is 100 kΩ and would mix values across the panel). |
+| Channel faders | 2 | Bourns **PTL45-15O0-103B2** (45 mm, 10 kΩ, linear B-taper) | `118-PTL45-15O0-103B2-ND` | $3.76 ea / $7.52 | Consolidated to the same SKU as the crossfader — one fader part across the deck strip. The previous `103A3` pick was both unavailable on Digikey CA and audio-taper (not linear, per the Bourns PTL datasheet "A vs B" code). Linear is correct for DJ channel volume; Mixxx applies its own fader curve. |
 | Crossfader | 1 | Bourns **PTL45-15O0-103B2** (45 mm, 10 kΩ, linear) | `118-PTL45-15O0-103B2-ND` | $2.57 | Best Digikey-orderable crossfader. Carbon-element wiper — will scratch eventually; route panel cutout to standard 45 mm Mini-Innofader footprint as a v2 upgrade path. |
 
 ## Encoders
 
 | Subsystem | Qty | Pick | Digikey P/N | Cost (USD)* | Notes |
 |---|---|---|---|---|---|
-| Beat-loop + browse (w/ push) | 3 | TBD — likely Bourns `PEC11R-4215F-S0024` (24 PPR w/ push, ~$2.38 ea) | TBD | TBD | Mechanical, breadboard-friendly. |
-| FX select (no push) | 1 | TBD — likely Bourns `PEC11R-4015F-S0024` (24 PPR no push, ~$2.30 ea) | TBD | TBD | |
+| Beat-loop + browse (w/ push) | 3 | Bourns `PEC11R-4215F-S0024` (24 PPR, 24 detents, w/ push) | `PEC11R-4215F-S0024-ND` | $4.60 ea / $13.80 | Mechanical, breadboard-friendly. 6mm flatted shaft fits the Cliff CL170822BR knob. 3D model in Digikey EDA/CAD Models. https://www.digikey.ca/en/products/detail/bourns-inc/PEC11R-4215F-S0024/4499665 |
+| FX select (no push) | 1 | Bourns `PEC11R-4215F-N0024` (24 PPR, 24 detents, no push) | `PEC11R-4215F-N0024-ND` | $3.73 | Detent feel for discrete effect-list cycling. Suffix corrected from the earlier `-S0024` placeholder — the `-S` suffix actually has a switch; `-N` is the true no-push variant. 3D model in Digikey EDA/CAD Models. https://www.digikey.ca/en/products/detail/bourns-inc/PEC11R-4215F-N0024/4499636 |
 | Jog wheels | 2 | Adafruit **AS5600 STEMMA QT breakout** (PID 6357) | `1528-6357-ND` | $5.95 ea / $11.90 | Magnetic angle sensor, 4096 steps/rev, I²C. Contactless = no detent, unlimited life. **Caveat:** requires a diametric 6 mm magnet glued to the jog spindle (sold separately on Digikey, ~$1–2 ea); mechanical bearing for the platter is on the builder. Breadboard-friendly (headers ship un-soldered). |
 
 ## Hotcue keys (RGB)
@@ -70,6 +70,19 @@ Notes: NeoKey 1×4 runs Adafruit's seesaw firmware over I²C — chains on the s
 |---|---|---|---|---|
 | E-Switch TL1100F160Q tactile (through-hole, 6mm) | 19 | Digikey `TL1100F160Q` | $0.42 ea / $7.98 | Standard through-hole tactile for play, sync, cue, PFL, load, shift, loop in/out/exit, FX on/off. Caveat: if hotcue pads end up using NeoTrellis, we still need these 19 separately. |
 
+## Knobs & caps (user-touched mounted parts)
+
+Required by SPEC: every rotary pot, fader, non-jog encoder, and tactile button ships with a cap mounted — no bare shafts or actuators on the finished panel.
+
+| Part | Qty | Digikey CA P/N | CAD unit | Ext. | 3D model? | Link |
+|---|---|---|---|---|---|---|
+| Cliff CL170822BR — soft-touch rubber knob, black w/ white pointer, 6mm D push-fit | 16 | `4654-CL170822BR-ND` | $1.25 | $20.00 | Yes (Digikey EDA/CAD Models) | https://www.digikey.ca/en/products/detail/cliff-electronic-components-ltd/CL170822BR/22286719 |
+| Davies Molding 1300-B — knurled plastic wedge fader cap | 5 | `1722-1326-ND` | $2.02 | $10.10 | **No (SPEC exception — model manually from datasheet)** | https://www.digikey.ca/en/products/detail/davies-molding-llc/1300-B/7908413 |
+| E-Switch 1RBLK — round tactile button cap, black, snap-fit | 19 | `EG1882-ND` | $0.31 | $5.89 | Yes (Digikey EDA/CAD Models) | https://www.digikey.ca/en/products/detail/e-switch/1RBLK/271579 |
+| **Subtotal** | | | | **~$35.99 CAD** | | |
+
+Notes: One knob SKU covers all 12 pots (PT01-D115D + PT01-D225D detent variants) and all 4 non-jog encoders (Bourns PEC11R `F` suffix = 6mm flatted shaft, datasheet-confirmed). The Davies 1300-B is the only in-stock wide-flat slider cap on Digikey CA — fits the Bourns PTL lever (2.05×0.6mm blade) with a kapton or electrical-tape shim inside its 3.6×1.1mm cutout. No 3D model available anywhere for the 1300-B; cap dimensions (25×15×10mm wedge) come from the Davies datasheet for enclosure planning — this is the one SPEC-flagged exception in the BOM. The 1RBLK lifts the TL1100F160Q tactile actuator ~9mm above the PCB for a clean panel-protruding press surface and lets us color-code button function (loop in/out/exit, PFL, load, shift, etc.) later via swapping caps.
+
 ## Connectors
 
 | Part | Qty | Source | Cost | Rationale |
@@ -80,7 +93,7 @@ Notes: NeoKey 1×4 runs Adafruit's seesaw firmware over I²C — chains on the s
 
 ## Running cost estimate
 
-All prices in CAD from digikey.ca (verified by research agents). Budget per SPEC.md: **≤ $200 CAD total**.
+All prices in CAD from digikey.ca (verified by research agents). Budget per SPEC.md: **≤ $250 CAD total**.
 
 | Subsystem | CAD |
 |---|---|
@@ -88,18 +101,21 @@ All prices in CAD from digikey.ca (verified by research agents). Budget per SPEC
 | Analog mux (SparkFun BOB-09056 CD74HC4067 breakout) | $9.51 |
 | Pitch faders (Bourns PTL01 ×2, 100 mm) | $17.84 |
 | Crossfader (Bourns PTL45-15O0-103B2, 10 kΩ) | $3.76 |
+| Channel faders (Bourns PTL45-15O0-103B2 ×2, 10 kΩ) | $7.52 |
 | Jog encoders (Adafruit AS5600 ×2 + diametric magnets ×2) | $19.02 |
-| Pots (10× Same Sky PT01 + 2× TT P160KNPD detented) | $19.50 |
-| Channel faders (Bourns PTL45-15O0-103A3 ×2, 10 kΩ) | $7.52 |
-| Beat-loop + browse + FX encoders (Bourns PEC11R ×4) | $17.98 |
+| Pots (10× Same Sky PT01-D115D-B103 + 2× Same Sky PT01-D225D-B103 detented) | $18.20 |
+| Beat-loop + browse + FX encoders (3× Bourns PEC11R-4215F-S0024 + 1× PEC11R-4215F-N0024) | $17.53 |
 | Tactile switches (E-Switch TL1100F160Q ×19) | $14.25 |
 | USB-B jack (Adam Tech USB-B-S-RA) | $0.70 |
 | Hotcue keys (NeoKey 1×4 ×2 + MX switches ×8 + keycaps 10-pk) | $60.73 |
-| **Pre-tax pre-shipping subtotal** | **~$180.28 CAD** |
+| Knob caps (Cliff CL170822BR ×16) | $20.00 |
+| Fader caps (Davies 1300-B ×5) | $10.10 |
+| Tactile button caps (E-Switch 1RBLK ×19) | $5.89 |
+| **Pre-tax pre-shipping subtotal** | **~$214.52 CAD** |
 | Shipping (digikey.ca, free over $100 CAD) | $0 |
-| Tax (ON HST 13 % example; varies by province) | ~$23.44 |
-| **Estimated delivered total (ON)** | **~$203.72 CAD** |
-| Budget cap | $200.00 |
-| **Headroom** | **~$3.72 CAD over** |
+| Tax (ON HST 13 % example; varies by province) | ~$27.89 |
+| **Estimated delivered total (ON)** | **~$242.41 CAD** |
+| Budget cap | $250.00 |
+| **Headroom** | **~$7.59 CAD under** |
 
-All v1 component decisions are now locked. Path A (NeoKey + MX) was chosen over Path B (NeoTrellis + silicone) for design simplicity (8 vs 16 pads) — note this puts the build slightly over the $200 CAD cap once tax is included. Options: bump the spec budget, drop a different pick to a cheaper alternative, or order carefully and absorb the ~$4 overage.
+All v1 component decisions are locked, including the new knob/fader/button caps required by SPEC. Pre-tax sits ~$35 under the $250 CAD spec cap; delivered (with ON HST) sits ~$7 under, leaving margin for shipping variance, qty-tier price drift, or one impulse add at order time.
