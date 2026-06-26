@@ -49,7 +49,8 @@ Each subsystem lists the chosen part, supplier, approximate cost, and a one-line
 |---|---|---|---|---|---|
 | Beat-loop + browse (w/ push) | 3 | Bourns `PEC11R-4215F-S0024` (24 PPR, 24 detents, w/ push) | `PEC11R-4215F-S0024-ND` | $4.60 ea / $13.80 | Mechanical, breadboard-friendly. 6mm flatted shaft fits the Cliff CL170822BR knob. 3D model in Digikey EDA/CAD Models. https://www.digikey.ca/en/products/detail/bourns-inc/PEC11R-4215F-S0024/4499665 |
 | FX select (no push) | 1 | Bourns `PEC11R-4215F-N0024` (24 PPR, 24 detents, no push) | `PEC11R-4215F-N0024-ND` | $3.73 | Detent feel for discrete effect-list cycling. Suffix corrected from the earlier `-S0024` placeholder — the `-S` suffix actually has a switch; `-N` is the true no-push variant. 3D model in Digikey EDA/CAD Models. https://www.digikey.ca/en/products/detail/bourns-inc/PEC11R-4215F-N0024/4499636 |
-| Jog wheels | 2 | Adafruit **AS5600 STEMMA QT breakout** (PID 6357) | `1528-6357-ND` | $5.95 ea / $11.90 | Magnetic angle sensor, 4096 steps/rev, I²C. Contactless = no detent, unlimited life. **AS5600 has a hard-fixed I²C address (`0x36`) with no straps** — the two chips cannot share one bus. Split across the RP2040's two I²C peripherals: deck-A AS5600 on primary `Wire` (SDA0/SCL0, shared with MCP23017s + NeoKeys); deck-B AS5600 on secondary `Wire1` (SDA1/SCL1) on two free GPIOs. Adds 2× extra 4.7 kΩ pull-ups for the second bus (see Buttons section) and zero new ICs. **Caveat:** requires a diametric 6 mm magnet glued to the jog spindle (sold separately on Digikey, ~$1–2 ea); mechanical bearing for the platter is on the builder. Breadboard-friendly (headers ship un-soldered). |
+| Jog wheels | 2 | Adafruit **AS5600 STEMMA QT breakout** (PID 6357) | `1528-6357-ND` | $5.95 ea / $11.90 | Magnetic angle sensor, 4096 steps/rev, I²C. Contactless = no detent, unlimited life. **AS5600 has a hard-fixed I²C address (`0x36`) with no straps** — the two chips cannot share one bus. Split across the RP2040's two I²C peripherals: deck-A AS5600 on primary `Wire` (SDA0/SCL0, shared with MCP23017s + NeoKeys); deck-B AS5600 on secondary `Wire1` (SDA1/SCL1) on two free GPIOs. Adds 2× extra 4.7 kΩ pull-ups for the second bus (see Buttons section) and zero new ICs. Requires the matching diametric magnet (next row) glued axially to the jog spindle; mechanical bearing for the platter is on the builder. Breadboard-friendly (headers ship un-soldered). |
+| Diametric jog magnet | 2 | Radial Magnets `8995` (6 mm × 2.5 mm, N35 NdFeB, **diametric** magnetization) | `469-1024-ND` | $0.62 ea / $1.24 | Mandatory for AS5600 to read angle — axial magnets give garbage output, this part is explicitly attribute-tagged "Diametric" on Digikey. Glue to the underside of the rotating jog shaft, centered ≤0.5 mm laterally / ≤1.5 mm vertically from the AS5600 IC face. https://www.digikey.ca/en/products/detail/radial-magnets-inc/8995/5126077 |
 
 ## Hotcue keys (RGB)
 
@@ -87,7 +88,7 @@ Notes: One knob SKU covers all 12 pots (PT01-D115D + PT01-D225D detent variants)
 
 | Part | Qty | Source | Cost | Rationale |
 |---|---|---|---|---|
-| Adam Tech USB-B-S-RA panel/PCB receptacle | 1 | Digikey `USB-B-S-RA` | $0.48 | Rugged for a knockabout controller; through-hole right-angle, easy to panel-mount. |
+| Adafruit 937 panel-mount USB-B-female ↔ micro-B-male cable (1 ft / 30 cm, 2 screw locks) | 1 | Digikey `1528-1574-ND` | $6.16 | Replaces a separate PCB receptacle + internal pigtail in one assembly. User plugs a standard USB-B cable into the panel side; the internal micro-B male plugs straight into the Nano RP2040 Connect's onboard micro-USB. Avoids the soldering-to-test-pads risk that a panel-only USB-B receptacle would create (no plain USB-B-male → micro-B-male pigtail cable is stocked on Digikey CA). https://www.digikey.ca/en/products/detail/adafruit-industries-llc/937/5844688 |
 
 ---
 
@@ -106,16 +107,17 @@ All prices in CAD from digikey.ca (verified by research agents). Budget per SPEC
 | Pots (10× Same Sky PT01-D115D-B103 + 2× Same Sky PT01-D225D-B103 detented) | $18.20 |
 | Beat-loop + browse + FX encoders (3× Bourns PEC11R-4215F-S0024 + 1× PEC11R-4215F-N0024) | $17.53 |
 | Tactile switches (E-Switch TL1105SPF160Q ×19) | $8.93 |
-| USB-B jack (Adam Tech USB-B-S-RA) | $0.70 |
+| USB-B panel cable (Adafruit 937, USB-B female ↔ micro-B male, panel-mount) | $6.16 |
+| Diametric jog magnets (Radial Magnets 8995 ×2) | $1.24 |
 | Hotcue keys (NeoKey 1×4 ×2 + MX switches ×8 + keycaps 10-pk) | $60.73 |
 | Knob caps (Cliff CL170822BR ×16) | $20.00 |
 | Fader caps (Davies 1300-B ×5) | $10.10 |
 | Tactile button caps (E-Switch 1RBLK ×19) | $5.89 |
-| **Pre-tax pre-shipping subtotal** | **~$209.40 CAD** |
+| **Pre-tax pre-shipping subtotal** | **~$216.10 CAD** |
 | Shipping (digikey.ca, free over $100 CAD) | $0 |
-| Tax (ON HST 13 % example; varies by province) | ~$27.22 |
-| **Estimated delivered total (ON)** | **~$236.62 CAD** |
+| Tax (ON HST 13 % example; varies by province) | ~$28.09 |
+| **Estimated delivered total (ON)** | **~$244.19 CAD** |
 | Budget cap | $250.00 |
-| **Headroom** | **~$13.38 CAD under** |
+| **Headroom** | **~$5.81 CAD under** |
 
 All v1 component decisions are locked, including the new knob/fader/button caps required by SPEC. Pre-tax sits ~$35 under the $250 CAD spec cap; delivered (with ON HST) sits ~$7 under, leaving margin for shipping variance, qty-tier price drift, or one impulse add at order time.
