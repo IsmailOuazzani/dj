@@ -12,7 +12,8 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 - Tactile feel approaching commercial entry/mid-range controllers (long pitch fader, real crossfader, real channel faders, clicky encoders).
 - LED feedback for state that the user can't otherwise see (which hotcues are set, play/sync engaged).
 - **Breadboard-prototype-able.** Every component selected for v1 must be breadboard-compatible — through-hole DIP, breakout-mounted SMD, or panel-mount with through-hole pins — so each subsystem can be proved on breadboard before a PCB is committed to. SMD-only parts without an available breakout are disqualified.
-- **Budget: ≤ $250 CAD total** for all v1 parts, including spares and mistakes. Sourcing is restricted to digikey.ca.
+- **Budget: ≤ $300 CAD total** for all v1 parts, including spares and mistakes. Sourcing is restricted to digikey.ca.
+- **No lead time. In-stock-now only.** Every v1 BOM part must be at >0 stock on Digikey Canada at the moment it's added to the cart — zero exceptions. Backorders, "ships in 5 weeks", "non-stock with X-week mfr lead", and similar are disqualifying. If a part falls to 0 stock between locking the BOM and ordering, the BOM must be re-spun before checkout.
 - **All user-touched controls ship with caps mounted.** Every rotary pot, fader, non-jog rotary encoder, and tactile button must have a knob, fader cap, or button cap on the BOM — no bare shafts or bare actuators on the finished panel.
 - **3D models for user-touched parts.** Knobs, fader caps, button caps, and keycaps must have publicly available 3D models (STEP, STL, or IGES) — Digikey-hosted or manufacturer-hosted both count. Exceptions are allowed but must be flagged in the BOM with the manual-modeling fallback noted.
 - **No top-surface cables.** All wiring routes under the enclosure top. Components that would force flying-lead cable exposure on the user-facing surface are disqualified.
