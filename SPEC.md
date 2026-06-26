@@ -12,7 +12,10 @@ A from-scratch, 2-deck DJ controller that acts as a USB-MIDI input device for [M
 - Tactile feel approaching commercial entry/mid-range controllers (long pitch fader, real crossfader, real channel faders, clicky encoders).
 - LED feedback for state that the user can't otherwise see (which hotcues are set, play/sync engaged).
 - **Breadboard-prototype-able.** Every component selected for v1 must be breadboard-compatible — through-hole DIP, breakout-mounted SMD, or panel-mount with through-hole pins — so each subsystem can be proved on breadboard before a PCB is committed to. SMD-only parts without an available breakout are disqualified.
-- **Budget: ≤ $200 CAD total** for all v1 parts, including spares and mistakes. Sourcing is restricted to digikey.ca.
+- **Budget: ≤ $250 CAD total** for all v1 parts, including spares and mistakes. Sourcing is restricted to digikey.ca.
+- **All user-touched controls ship with caps mounted.** Every rotary pot, fader, non-jog rotary encoder, and tactile button must have a knob, fader cap, or button cap on the BOM — no bare shafts or bare actuators on the finished panel.
+- **3D models for user-touched parts.** Knobs, fader caps, button caps, and keycaps must have publicly available 3D models (STEP, STL, or IGES) — Digikey-hosted or manufacturer-hosted both count. Exceptions are allowed but must be flagged in the BOM with the manual-modeling fallback noted.
+- **No top-surface cables.** All wiring routes under the enclosure top. Components that would force flying-lead cable exposure on the user-facing surface are disqualified.
 - **CLI-first firmware toolchain.** Build, upload, monitor, and test the firmware from the command line — no GUI IDE required. Use **PlatformIO** as the build system, wrapped in a **Taskfile** (`Taskfile.yml`, go-task) exposing at minimum `task upload`, `task monitor`, and `task test`. Keeps the dev loop scriptable for both humans and Claude agents.
 - **Use existing libraries over reimplementation.** Default to well-maintained community libraries (Adafruit, official vendor SDKs, established Arduino/PlatformIO packages) for USB-MIDI, NeoPixel driving, MCP23017 / I²C devices, AS5600 reading, encoder decoding, and similar. Write custom code only when no library covers the requirement, or when an existing library has fundamental correctness/quality issues.
 
@@ -155,7 +158,7 @@ These will be decided as hardware selection progresses. Listed here so they have
 - **Analog inputs (12 pots + 2 pitch faders + 2 channel faders + 1 crossfader = 17 analog signals)**: depending on MCU ADC channel count, may require a CD4051/CD4067 analog mux.
 - **Encoders (6 total, 2 high-res jog)**: jog wheels likely benefit from dedicated quadrature decoding (PIO on RP2040, or a hardware encoder peripheral on STM32). Beat-loop, browse, and FX-select encoders can be polled.
 - **RGB LEDs (8 hotcue keys)**: WS2812 chain is the cheap path; a dedicated driver is the robust path. USB bus power budget (500 mA on USB 2.0) constrains LED brightness — current limiting in firmware is mandatory.
-- **Enclosure**: TBD. Likely laser-cut acrylic + 3D-printed knob caps, or a milled aluminum panel.
+- **Enclosure**: TBD. Likely laser-cut acrylic top panel, or a milled aluminum panel. Knob, fader, and button caps are sourced off-the-shelf (see BOM) and modeled via vendor-supplied STEP files for panel cutout and clearance planning.
 - **Firmware framework**: TBD. Arduino, PlatformIO, or bare HAL — depends on MCU.
 
 ## Appendix B — Open questions
