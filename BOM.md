@@ -18,8 +18,8 @@ Each subsystem lists the chosen part, supplier, approximate cost, and a one-line
 |---|---|---|---|---|
 | Microchip MCP23017-E/SP (DIP-28, I²C 16-bit GPIO expander) | 3 | Digikey `MCP23017-E/SP-ND` | $1.40 ea / $4.20 | 3 chips = 48 GPIO, covers 35 buttons with headroom. Internal pull-ups (no 35 external resistors). Interrupt-on-change pin → MCU only reads on actual button change. 2 pins total to the MCU (SDA, SCL). Bus can address up to 8 chips = 128 GPIO future headroom. |
 | 0.1 µF ceramic bypass caps | 3 | Digikey `BC1148CT-ND` | $0.81 | One per chip. |
-| 4.7 kΩ I²C pull-up resistors | 2 | Digikey `CFR-25JB-52-4K7CT-ND` | $0.20 | SDA, SCL pull-ups. |
-| **Subtotal** | | | **~$5.21** | |
+| 4.7 kΩ I²C pull-up resistors | 4 | Digikey `CFR-25JB-52-4K7CT-ND` | $0.40 | 2× for primary I²C bus (Wire: SDA0/SCL0 — MCP23017s + NeoKeys + 1× AS5600), 2× for secondary I²C bus (Wire1: SDA1/SCL1 — second AS5600). Two buses resolve the AS5600 fixed-address (`0x36`) collision without an I²C mux IC. |
+| **Subtotal** | | | **~$5.41** | |
 
 ## Pots & faders — analog input scaling
 
@@ -49,7 +49,7 @@ Each subsystem lists the chosen part, supplier, approximate cost, and a one-line
 |---|---|---|---|---|---|
 | Beat-loop + browse (w/ push) | 3 | Bourns `PEC11R-4215F-S0024` (24 PPR, 24 detents, w/ push) | `PEC11R-4215F-S0024-ND` | $4.60 ea / $13.80 | Mechanical, breadboard-friendly. 6mm flatted shaft fits the Cliff CL170822BR knob. 3D model in Digikey EDA/CAD Models. https://www.digikey.ca/en/products/detail/bourns-inc/PEC11R-4215F-S0024/4499665 |
 | FX select (no push) | 1 | Bourns `PEC11R-4215F-N0024` (24 PPR, 24 detents, no push) | `PEC11R-4215F-N0024-ND` | $3.73 | Detent feel for discrete effect-list cycling. Suffix corrected from the earlier `-S0024` placeholder — the `-S` suffix actually has a switch; `-N` is the true no-push variant. 3D model in Digikey EDA/CAD Models. https://www.digikey.ca/en/products/detail/bourns-inc/PEC11R-4215F-N0024/4499636 |
-| Jog wheels | 2 | Adafruit **AS5600 STEMMA QT breakout** (PID 6357) | `1528-6357-ND` | $5.95 ea / $11.90 | Magnetic angle sensor, 4096 steps/rev, I²C. Contactless = no detent, unlimited life. **Caveat:** requires a diametric 6 mm magnet glued to the jog spindle (sold separately on Digikey, ~$1–2 ea); mechanical bearing for the platter is on the builder. Breadboard-friendly (headers ship un-soldered). |
+| Jog wheels | 2 | Adafruit **AS5600 STEMMA QT breakout** (PID 6357) | `1528-6357-ND` | $5.95 ea / $11.90 | Magnetic angle sensor, 4096 steps/rev, I²C. Contactless = no detent, unlimited life. **AS5600 has a hard-fixed I²C address (`0x36`) with no straps** — the two chips cannot share one bus. Split across the RP2040's two I²C peripherals: deck-A AS5600 on primary `Wire` (SDA0/SCL0, shared with MCP23017s + NeoKeys); deck-B AS5600 on secondary `Wire1` (SDA1/SCL1) on two free GPIOs. Adds 2× extra 4.7 kΩ pull-ups for the second bus (see Buttons section) and zero new ICs. **Caveat:** requires a diametric 6 mm magnet glued to the jog spindle (sold separately on Digikey, ~$1–2 ea); mechanical bearing for the platter is on the builder. Breadboard-friendly (headers ship un-soldered). |
 
 ## Hotcue keys (RGB)
 
@@ -97,7 +97,7 @@ All prices in CAD from digikey.ca (verified by research agents). Budget per SPEC
 
 | Subsystem | CAD |
 |---|---|
-| Button I/O expanders (MCP23017 ×3 + caps + I²C pull-ups) | $9.47 |
+| Button I/O expanders (MCP23017 ×3 + caps + I²C pull-ups ×4 for dual bus) | $9.67 |
 | Analog mux (SparkFun BOB-09056 CD74HC4067 breakout) | $9.51 |
 | Pitch faders (Bourns PTL01 ×2, 100 mm) | $17.84 |
 | Crossfader (Bourns PTL45-15O0-103B2, 10 kΩ) | $3.76 |
@@ -111,11 +111,11 @@ All prices in CAD from digikey.ca (verified by research agents). Budget per SPEC
 | Knob caps (Cliff CL170822BR ×16) | $20.00 |
 | Fader caps (Davies 1300-B ×5) | $10.10 |
 | Tactile button caps (E-Switch 1RBLK ×19) | $5.89 |
-| **Pre-tax pre-shipping subtotal** | **~$214.52 CAD** |
+| **Pre-tax pre-shipping subtotal** | **~$214.72 CAD** |
 | Shipping (digikey.ca, free over $100 CAD) | $0 |
-| Tax (ON HST 13 % example; varies by province) | ~$27.89 |
-| **Estimated delivered total (ON)** | **~$242.41 CAD** |
+| Tax (ON HST 13 % example; varies by province) | ~$27.91 |
+| **Estimated delivered total (ON)** | **~$242.63 CAD** |
 | Budget cap | $250.00 |
-| **Headroom** | **~$7.59 CAD under** |
+| **Headroom** | **~$7.37 CAD under** |
 
 All v1 component decisions are locked, including the new knob/fader/button caps required by SPEC. Pre-tax sits ~$35 under the $250 CAD spec cap; delivered (with ON HST) sits ~$7 under, leaving margin for shipping variance, qty-tier price drift, or one impulse add at order time.
