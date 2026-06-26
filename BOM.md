@@ -68,7 +68,7 @@ Notes: NeoKey 1×4 runs Adafruit's seesaw firmware over I²C — chains on the s
 
 | Part | Qty | Source | Cost | Rationale |
 |---|---|---|---|---|
-| E-Switch TL1100F160Q tactile (through-hole, 6mm) | 19 | Digikey `TL1100F160Q` | $0.42 ea / $7.98 | Standard through-hole tactile for play, sync, cue, PFL, load, shift, loop in/out/exit, FX on/off. Caveat: if hotcue pads end up using NeoTrellis, we still need these 19 separately. |
+| E-Switch TL1105SPF160Q tactile (through-hole, 6mm × 6mm, 160 gf, 100K cycles) | 19 | Digikey `EG1861-ND` | $0.47 ea / $8.93 | Standard through-hole tactile for play, sync, cue, PFL, load, shift, loop in/out/exit, FX on/off. **Swapped from TL1100F160Q** to fix 1RBLK cap fitment — per the E-Switch 1RBLK datasheet, the cap mates with TL1105SP / TL1105JA / TL3301SP / TL2201Z / TL4201Z series, **not** TL1100. The TL1105SPF160Q is the direct 6×6mm equivalent that's on the 1RBLK fitment list. https://www.digikey.ca/en/products/detail/e-switch/TL1105SPF160Q/271558 |
 
 ## Knobs & caps (user-touched mounted parts)
 
@@ -105,17 +105,17 @@ All prices in CAD from digikey.ca (verified by research agents). Budget per SPEC
 | Jog encoders (Adafruit AS5600 ×2 + diametric magnets ×2) | $19.02 |
 | Pots (10× Same Sky PT01-D115D-B103 + 2× Same Sky PT01-D225D-B103 detented) | $18.20 |
 | Beat-loop + browse + FX encoders (3× Bourns PEC11R-4215F-S0024 + 1× PEC11R-4215F-N0024) | $17.53 |
-| Tactile switches (E-Switch TL1100F160Q ×19) | $14.25 |
+| Tactile switches (E-Switch TL1105SPF160Q ×19) | $8.93 |
 | USB-B jack (Adam Tech USB-B-S-RA) | $0.70 |
 | Hotcue keys (NeoKey 1×4 ×2 + MX switches ×8 + keycaps 10-pk) | $60.73 |
 | Knob caps (Cliff CL170822BR ×16) | $20.00 |
 | Fader caps (Davies 1300-B ×5) | $10.10 |
 | Tactile button caps (E-Switch 1RBLK ×19) | $5.89 |
-| **Pre-tax pre-shipping subtotal** | **~$214.72 CAD** |
+| **Pre-tax pre-shipping subtotal** | **~$209.40 CAD** |
 | Shipping (digikey.ca, free over $100 CAD) | $0 |
-| Tax (ON HST 13 % example; varies by province) | ~$27.91 |
-| **Estimated delivered total (ON)** | **~$242.63 CAD** |
+| Tax (ON HST 13 % example; varies by province) | ~$27.22 |
+| **Estimated delivered total (ON)** | **~$236.62 CAD** |
 | Budget cap | $250.00 |
-| **Headroom** | **~$7.37 CAD under** |
+| **Headroom** | **~$13.38 CAD under** |
 
 All v1 component decisions are locked, including the new knob/fader/button caps required by SPEC. Pre-tax sits ~$35 under the $250 CAD spec cap; delivered (with ON HST) sits ~$7 under, leaving margin for shipping variance, qty-tier price drift, or one impulse add at order time.
