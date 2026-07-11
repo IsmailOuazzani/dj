@@ -2,14 +2,19 @@
 <!--
   ISMA 3000 — v0 validation mapping.
 
-  Single CC binding used to prove the USB-MIDI plumbing end-to-end before the
-  rest of the control surface lands. The firmware (firmware/src/main.cpp) reads
-  a pot on A0 and emits one Control Change per change:
-      status  = 0xB0  (Control Change, MIDI channel 1)
-      cc#     = 21
-      value   = 0..127 (12-bit ADC scaled down to 7 bits)
-  This file maps that CC to Deck 1's Quick Effect super knob in Mixxx
-  (the "filter"/super knob on the deck-1 quick-effect rack).
+  Covers the 4 controls currently wired on breadboard: play/pause and the
+  main filter (Mixxx QuickEffect super knob) on each of the 2 decks.
+  Firmware (firmware/src/main.cpp) reads two pots through a CD74HC4067 mux
+  (channels Y0/Y1) and two buttons through a MCP23017 I²C expander
+  (GPA0/GPA1), then emits:
+
+      Deck A filter : CC 7  on MIDI channel 1  (status 0xB0)
+      Deck B filter : CC 7  on MIDI channel 2  (status 0xB1)
+      Deck A play   : Note 0x24 on channel 1   (status 0x90) — NoteOn on press only
+      Deck B play   : Note 0x24 on channel 2   (status 0x91) — NoteOn on press only
+
+  Values are 0..127 (12-bit ADC scaled down to 7 bits for the pots, 127 for
+  the button press).
 
   Mixxx matches a mapping to a connected device by the <controller id="..."> attribute
   below — it must equal the USB product string the device advertises. The firmware
@@ -25,7 +30,7 @@
     <info>
         <name>ISMA 3000</name>
         <author>ismail</author>
-        <description>v0 validation mapping: single pot on CC21/ch1 -&gt; deck 1 Quick Effect super knob.</description>
+        <description>v0 mapping: play/pause + main filter (QuickEffect super) on both decks.</description>
     </info>
     <controller id="ISMA 3000">
         <controls>
@@ -33,7 +38,16 @@
                 <group>[QuickEffectRack1_[Channel1]]</group>
                 <key>super1</key>
                 <status>0xB0</status>
-                <midino>0x15</midino>
+                <midino>0x07</midino>
+                <options>
+                    <Normal/>
+                </options>
+            </control>
+            <control>
+                <group>[QuickEffectRack1_[Channel2]]</group>
+                <key>super1</key>
+                <status>0xB1</status>
+                <midino>0x07</midino>
                 <options>
                     <Normal/>
                 </options>
@@ -42,6 +56,15 @@
                 <group>[Channel1]</group>
                 <key>play</key>
                 <status>0x90</status>
+                <midino>0x24</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>play</key>
+                <status>0x91</status>
                 <midino>0x24</midino>
                 <options>
                     <Button/>
