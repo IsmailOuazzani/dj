@@ -2,14 +2,16 @@
 <!--
   ISMA 3000 — v0 validation mapping.
 
-  Covers the 4 controls currently wired on breadboard: play/pause and the
-  main filter (Mixxx QuickEffect super knob) on each of the 2 decks.
-  Firmware (firmware/src/main.cpp) reads two pots through a CD74HC4067 mux
-  (channels Y0/Y1) and two buttons through a MCP23017 I²C expander
-  (GPA0/GPA1), then emits:
+  Covers the 6 controls currently wired on breadboard: play/pause, main
+  filter (Mixxx QuickEffect super knob), and channel volume on each of the
+  2 decks. Firmware (firmware/src/main.cpp) reads four pots through a
+  CD74HC4067 mux (channels Y0-Y3) and two buttons through a MCP23017 I²C
+  expander (GPA0/GPA1), then emits:
 
-      Deck A filter : CC 7  on MIDI channel 1  (status 0xB0)
-      Deck B filter : CC 7  on MIDI channel 2  (status 0xB1)
+      Deck A filter : CC  7 on MIDI channel 1  (status 0xB0)
+      Deck B filter : CC  7 on MIDI channel 2  (status 0xB1)
+      Deck A volume : CC 20 on MIDI channel 1  (status 0xB0)
+      Deck B volume : CC 20 on MIDI channel 2  (status 0xB1)
       Deck A play   : Note 0x24 on channel 1   (status 0x90) — NoteOn on press only
       Deck B play   : Note 0x24 on channel 2   (status 0x91) — NoteOn on press only
 
@@ -30,7 +32,7 @@
     <info>
         <name>ISMA 3000</name>
         <author>ismail</author>
-        <description>v0 mapping: play/pause + main filter (QuickEffect super) on both decks.</description>
+        <description>v0 mapping: play/pause + main filter (QuickEffect super) + channel volume on both decks.</description>
     </info>
     <controller id="ISMA 3000">
         <controls>
@@ -48,6 +50,24 @@
                 <key>super1</key>
                 <status>0xB1</status>
                 <midino>0x07</midino>
+                <options>
+                    <Normal/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel1]</group>
+                <key>volume</key>
+                <status>0xB0</status>
+                <midino>0x14</midino>
+                <options>
+                    <Normal/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>volume</key>
+                <status>0xB1</status>
+                <midino>0x14</midino>
                 <options>
                     <Normal/>
                 </options>

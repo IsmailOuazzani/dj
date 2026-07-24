@@ -14,6 +14,7 @@ constexpr uint8_t MCP_ADDR = 0x20;
 
 // Deck A on MIDI channel 1, deck B on channel 2 — mirrored numbering.
 constexpr uint8_t CC_FILTER = 7;
+constexpr uint8_t CC_VOLUME = 20;
 constexpr uint8_t NOTE_PLAY = 0x24;
 
 constexpr unsigned long POT_SEND_INTERVAL_MS = 5;
@@ -49,6 +50,8 @@ struct Button {
 Pot pots[] = {
   {0, CC_FILTER, 1},   // deck A filter — mux Y0
   {1, CC_FILTER, 2},   // deck B filter — mux Y1
+  {2, CC_VOLUME, 1},   // deck A volume slider — mux Y2
+  {3, CC_VOLUME, 2},   // deck B volume slider — mux Y3
 };
 
 Button buttons[] = {
