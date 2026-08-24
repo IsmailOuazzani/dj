@@ -1,31 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ISMA 3000 — v0 validation mapping.
+  ISMA 3000 — Mixxx mapping.
 
-  Covers the 6 controls currently wired on breadboard: play/pause, main
-  filter (Mixxx QuickEffect super knob), and channel volume on each of the
-  2 decks. Firmware (firmware/src/main.cpp) reads four pots through a
-  CD74HC4067 mux (channels Y0-Y3) and two buttons through a MCP23017 I²C
-  expander (GPA0/GPA1), then emits:
+  Binds MIDI messages emitted by firmware/src/main.cpp to Mixxx control keys.
+  What the firmware emits (pin -> note/CC) lives in main.cpp; this file only
+  binds those messages to Mixxx controls — don't restate the firmware's
+  emission list here or it goes stale.
 
-      Deck A filter : CC  7 on MIDI channel 1  (status 0xB0)
-      Deck B filter : CC  7 on MIDI channel 2  (status 0xB1)
-      Deck A volume : CC 20 on MIDI channel 1  (status 0xB0)
-      Deck B volume : CC 20 on MIDI channel 2  (status 0xB1)
-      Deck A play   : Note 0x24 on channel 1   (status 0x90) — NoteOn on press only
-      Deck B play   : Note 0x24 on channel 2   (status 0x91) — NoteOn on press only
+  Mixxx matches this file to the device by <controller id="..."> below — must
+  equal the USB product string set via USB_PRODUCT in platformio.ini.
 
-  Values are 0..127 (12-bit ADC scaled down to 7 bits for the pots, 127 for
-  the button press).
-
-  Mixxx matches a mapping to a connected device by the <controller id="..."> attribute
-  below — it must equal the USB product string the device advertises. The firmware
-  sets USB_PRODUCT="ISMA 3000" via build_flags in platformio.ini.
-
-  Docs used while authoring:
+  Docs:
     https://github.com/mixxxdj/mixxx/wiki/Midi-Controller-Mapping-File-Format
-    https://github.com/mixxxdj/mixxx/wiki/Contributing-Mappings
-    https://github.com/mixxxdj/mixxx/wiki/Controller-Mapping-File-Locations
     https://manual.mixxx.org/2.4/en/chapters/controlling_mixxx.html
 -->
 <MixxxControllerPreset mixxxVersion="2.4" schemaVersion="1">
@@ -88,6 +74,33 @@
                 <midino>0x24</midino>
                 <options>
                     <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel1]</group>
+                <key>sync_enabled</key>
+                <status>0x90</status>
+                <midino>0x25</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel1]</group>
+                <key>hotcue_1_activate</key>
+                <status>0x90</status>
+                <midino>0x30</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel1]</group>
+                <key>rate</key>
+                <status>0xB0</status>
+                <midino>0x15</midino>
+                <options>
+                    <Normal/>
                 </options>
             </control>
         </controls>

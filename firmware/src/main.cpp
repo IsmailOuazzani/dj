@@ -15,7 +15,10 @@ constexpr uint8_t MCP_ADDR = 0x20;
 // Deck A on MIDI channel 1, deck B on channel 2 — mirrored numbering.
 constexpr uint8_t CC_FILTER = 7;
 constexpr uint8_t CC_VOLUME = 20;
+constexpr uint8_t CC_TEMPO  = 21;
 constexpr uint8_t NOTE_PLAY = 0x24;
+constexpr uint8_t NOTE_SYNC = 0x25;
+constexpr uint8_t NOTE_PAD1 = 0x30;
 
 constexpr unsigned long POT_SEND_INTERVAL_MS = 5;
 constexpr unsigned long DEBOUNCE_MS = 20;
@@ -23,6 +26,8 @@ constexpr unsigned long DEBOUNCE_MS = 20;
 Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI);
 Adafruit_MCP23X17 mcp;
+bool mcp_ok = false;
+bool boot_diag_printed = false;
 
 int mux_read(uint8_t ch) {
   for (int i = 0; i < 4; i++) digitalWrite(MUX_S_PINS[i], (ch >> i) & 1);
@@ -48,15 +53,13 @@ struct Button {
 };
 
 Pot pots[] = {
-  {0, CC_FILTER, 1},   // deck A filter — mux Y0
-  {1, CC_FILTER, 2},   // deck B filter — mux Y1
-  {2, CC_VOLUME, 1},   // deck A volume slider — mux Y2
-  {3, CC_VOLUME, 2},   // deck B volume slider — mux Y3
+  {15, CC_TEMPO, 1},   // deck A tempo slider — CD4067 channel labeled 15 (Y15)
 };
 
 Button buttons[] = {
-  {0, NOTE_PLAY, 1},   // deck A play — MCP GPA0
-  {1, NOTE_PLAY, 2},   // deck B play — MCP GPA1
+  {0, NOTE_SYNC, 1},   // deck A sync       — MCP pad labeled A0 (GPA0)
+  {1, NOTE_PLAY, 1},   // deck A play/pause — MCP pad labeled A1 (GPA1)
+  {2, NOTE_PAD1, 1},   // deck A pad 1      — MCP pad labeled A2 (GPA2)
 };
 
 void setup() {
@@ -66,7 +69,7 @@ void setup() {
 
   for (uint8_t s : MUX_S_PINS) pinMode(s, OUTPUT);
 
-  mcp.begin_I2C(MCP_ADDR);
+  mcp_ok = mcp.begin_I2C(MCP_ADDR);
   for (auto& b : buttons) mcp.pinMode(b.mcp_pin, INPUT_PULLUP);
 
   MIDI.begin(MIDI_CHANNEL_OMNI);
@@ -74,6 +77,10 @@ void setup() {
 
 void loop() {
   if (!TinyUSBDevice.mounted()) return;
+  if (!boot_diag_printed) {
+    Serial.printf("MCP %s (addr 0x%02X)\n", mcp_ok ? "OK" : "OFFLINE", MCP_ADDR);
+    boot_diag_printed = true;
+  }
   const unsigned long now = millis();
 
   for (auto& p : pots) {
