@@ -18,89 +18,35 @@
     <info>
         <name>ISMA 3000</name>
         <author>ismail</author>
-        <description>v0 mapping: play/pause + main filter (QuickEffect super) + channel volume on both decks.</description>
+        <description>Deck A: low EQ knob + wheel (1-beat jump per detent).</description>
     </info>
     <controller id="ISMA 3000">
         <controls>
             <control>
-                <group>[QuickEffectRack1_[Channel1]]</group>
-                <key>super1</key>
+                <group>[EqualizerRack1_[Channel1]_Effect1]</group>
+                <key>parameter1</key>
                 <status>0xB0</status>
-                <midino>0x07</midino>
-                <options>
-                    <Normal/>
-                </options>
-            </control>
-            <control>
-                <group>[QuickEffectRack1_[Channel2]]</group>
-                <key>super1</key>
-                <status>0xB1</status>
-                <midino>0x07</midino>
+                <midino>0x16</midino>
                 <options>
                     <Normal/>
                 </options>
             </control>
             <control>
                 <group>[Channel1]</group>
-                <key>volume</key>
-                <status>0xB0</status>
-                <midino>0x14</midino>
-                <options>
-                    <Normal/>
-                </options>
-            </control>
-            <control>
-                <group>[Channel2]</group>
-                <key>volume</key>
-                <status>0xB1</status>
-                <midino>0x14</midino>
-                <options>
-                    <Normal/>
-                </options>
-            </control>
-            <control>
-                <group>[Channel1]</group>
-                <key>play</key>
+                <key>beatjump_1_forward</key>
                 <status>0x90</status>
-                <midino>0x24</midino>
-                <options>
-                    <Button/>
-                </options>
-            </control>
-            <control>
-                <group>[Channel2]</group>
-                <key>play</key>
-                <status>0x91</status>
-                <midino>0x24</midino>
+                <midino>0x40</midino>
                 <options>
                     <Button/>
                 </options>
             </control>
             <control>
                 <group>[Channel1]</group>
-                <key>sync_enabled</key>
+                <key>beatjump_1_backward</key>
                 <status>0x90</status>
-                <midino>0x25</midino>
+                <midino>0x41</midino>
                 <options>
                     <Button/>
-                </options>
-            </control>
-            <control>
-                <group>[Channel1]</group>
-                <key>hotcue_1_activate</key>
-                <status>0x90</status>
-                <midino>0x30</midino>
-                <options>
-                    <Button/>
-                </options>
-            </control>
-            <control>
-                <group>[Channel1]</group>
-                <key>rate</key>
-                <status>0xB0</status>
-                <midino>0x15</midino>
-                <options>
-                    <Normal/>
                 </options>
             </control>
         </controls>

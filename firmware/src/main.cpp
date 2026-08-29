@@ -12,16 +12,11 @@ constexpr uint8_t MUX_S_PINS[4] = {D2, D3, D4, D5};
 // Board is strapped to the default I²C address.
 constexpr uint8_t MCP_ADDR = 0x20;
 
-// Deck A on MIDI channel 1, deck B on channel 2 — mirrored numbering.
-constexpr uint8_t CC_FILTER = 7;
-constexpr uint8_t CC_VOLUME = 20;
-constexpr uint8_t CC_TEMPO  = 21;
-constexpr uint8_t NOTE_PLAY = 0x24;
-constexpr uint8_t NOTE_SYNC = 0x25;
-constexpr uint8_t NOTE_PAD1 = 0x30;
+constexpr uint8_t CC_EQ_LOW       = 22;
+constexpr uint8_t NOTE_BROWSE_CW  = 0x40;
+constexpr uint8_t NOTE_BROWSE_CCW = 0x41;
 
 constexpr unsigned long POT_SEND_INTERVAL_MS = 5;
-constexpr unsigned long DEBOUNCE_MS = 20;
 
 Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI);
@@ -43,23 +38,24 @@ struct Pot {
   unsigned long last_send_ms = 0;
 };
 
-struct Button {
-  uint8_t mcp_pin;
-  uint8_t note;
+struct Encoder {
+  uint8_t a_pin;        // MCP pin, quadrature phase A
+  uint8_t b_pin;        // MCP pin, quadrature phase B
+  uint8_t note_cw;
+  uint8_t note_ccw;
   uint8_t channel;
-  int last_stable = HIGH;
-  int last_read = HIGH;
-  unsigned long last_change_ms = 0;
+  int last_a = HIGH;
+  int last_b = HIGH;
 };
 
 Pot pots[] = {
-  {15, CC_TEMPO, 1},   // deck A tempo slider — CD4067 channel labeled 15 (Y15)
+  {0, CC_EQ_LOW, 1},   // deck A low EQ knob — CD4067 channel labeled 0 (Y0)
 };
 
-Button buttons[] = {
-  {0, NOTE_SYNC, 1},   // deck A sync       — MCP pad labeled A0 (GPA0)
-  {1, NOTE_PLAY, 1},   // deck A play/pause — MCP pad labeled A1 (GPA1)
-  {2, NOTE_PAD1, 1},   // deck A pad 1      — MCP pad labeled A2 (GPA2)
+Encoder encoders[] = {
+  // Deck A wheel — Bourns PEC11R-4215F-S0024, phase A on MCP pad A3, phase B on A4.
+  // https://www.digikey.ca/en/products/detail/bourns-inc/PEC11R-4215F-S0024/4499665
+  {3, 4, NOTE_BROWSE_CW, NOTE_BROWSE_CCW, 1},
 };
 
 void setup() {
@@ -70,7 +66,10 @@ void setup() {
   for (uint8_t s : MUX_S_PINS) pinMode(s, OUTPUT);
 
   mcp_ok = mcp.begin_I2C(MCP_ADDR);
-  for (auto& b : buttons) mcp.pinMode(b.mcp_pin, INPUT_PULLUP);
+  for (auto& e : encoders) {
+    mcp.pinMode(e.a_pin, INPUT_PULLUP);
+    mcp.pinMode(e.b_pin, INPUT_PULLUP);
+  }
 
   MIDI.begin(MIDI_CHANNEL_OMNI);
 }
@@ -93,18 +92,19 @@ void loop() {
     Serial.printf("CC%u ch%u: %d\n", p.cc, p.channel, value7);
   }
 
-  for (auto& b : buttons) {
-    const int reading = mcp.digitalRead(b.mcp_pin);
-    if (reading != b.last_read) {
-      b.last_read = reading;
-      b.last_change_ms = now;
-    }
-    if (now - b.last_change_ms < DEBOUNCE_MS) continue;
-    if (reading == b.last_stable) continue;
-    b.last_stable = reading;
-    if (reading == LOW) {
-      MIDI.sendNoteOn(b.note, 127, b.channel);
-      Serial.printf("BTN ch%u: press\n", b.channel);
+  for (auto& e : encoders) {
+    // Half-step decode: fire once per detent on A's falling edge; direction
+    // from B's level at that moment.
+    const int a = mcp.digitalRead(e.a_pin);
+    const int b = mcp.digitalRead(e.b_pin);
+    if (a != e.last_a || b != e.last_b) {
+      if (a != e.last_a && a == LOW) {
+        const uint8_t note = (b == HIGH) ? e.note_cw : e.note_ccw;
+        MIDI.sendNoteOn(note, 127, e.channel);
+        Serial.printf("ENC ch%u: %s\n", e.channel, (b == HIGH) ? "CW" : "CCW");
+      }
+      e.last_a = a;
+      e.last_b = b;
     }
   }
 }
