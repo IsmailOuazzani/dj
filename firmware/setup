@@ -1,27 +1,53 @@
 #!/usr/bin/env bash
-# Install firmware dev dependencies via Homebrew.
+# Install firmware dev dependencies.
+# Supports Homebrew (macOS/Linux) and Ubuntu/Debian (apt + pip).
 # Idempotent: safe to re-run.
 
 set -euo pipefail
 
-if ! command -v brew >/dev/null 2>&1; then
-  echo "error: Homebrew not found. Install from https://brew.sh and re-run." >&2
+# ---------------------------------------------------------------------------
+# Platform detection
+# ---------------------------------------------------------------------------
+if command -v brew >/dev/null 2>&1; then
+  PLATFORM="brew"
+elif command -v apt-get >/dev/null 2>&1; then
+  PLATFORM="ubuntu"
+else
+  echo "error: Neither Homebrew nor apt found. Install one and re-run." >&2
   exit 1
 fi
 
-FORMULAE=(
-  platformio   # PlatformIO Core — build/upload/monitor toolchain
-  go-task      # task runner used by Taskfile.yml
-)
+echo "platform: $PLATFORM"
+echo
 
-for formula in "${FORMULAE[@]}"; do
-  if brew list --formula "$formula" >/dev/null 2>&1; then
-    echo "ok: $formula already installed"
-  else
-    echo "installing $formula..."
-    brew install "$formula"
-  fi
-done
+# ---------------------------------------------------------------------------
+# PlatformIO
+# ---------------------------------------------------------------------------
+if command -v pio >/dev/null 2>&1; then
+  echo "ok: platformio already installed"
+elif [[ "$PLATFORM" == "brew" ]]; then
+  echo "installing platformio..."
+  brew install platformio
+else
+  echo "installing platformio..."
+  pip3 install --upgrade platformio
+fi
+
+# ---------------------------------------------------------------------------
+# go-task
+# ---------------------------------------------------------------------------
+if command -v task >/dev/null 2>&1; then
+  echo "ok: go-task already installed"
+elif [[ "$PLATFORM" == "brew" ]]; then
+  echo "installing go-task..."
+  brew install go-task
+else
+  echo "installing go-task..."
+  # Official binary installer — puts `task` in ~/.local/bin
+  mkdir -p "$HOME/.local/bin"
+  sh -c "$(curl -fsSL https://taskfile.dev/install.sh)" -- -d -b "$HOME/.local/bin"
+  export PATH="$HOME/.local/bin:$PATH"
+fi
 
 echo
 echo "versions:"
@@ -37,8 +63,9 @@ task --version
 # Re-running this script (or `task mixxx:sync`) refreshes the copy after the
 # in-repo file is edited.
 #
-# Mixxx sandboxed controllers dir:
-#   ~/Library/Containers/org.mixxx.mixxx/Data/Library/Application Support/Mixxx/controllers
+# Controller dirs by platform:
+#   macOS (sandboxed): ~/Library/Containers/org.mixxx.mixxx/Data/Library/Application Support/Mixxx/controllers
+#   Linux:             ~/.mixxx/controllers
 #
 # Docs:
 #   https://github.com/mixxxdj/mixxx/wiki/Controller-Mapping-File-Locations
@@ -46,11 +73,16 @@ task --version
 echo
 echo "syncing Mixxx mapping..."
 
-# Resolve repo root from this script's location so cwd doesn't matter.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 MAPPING_SRC="$REPO_ROOT/mixxx/ISMA-3000.midi.xml"
-MIXXX_DIR="$HOME/Library/Containers/org.mixxx.mixxx/Data/Library/Application Support/Mixxx/controllers"
+
+if [[ "$(uname)" == "Darwin" ]]; then
+  MIXXX_DIR="$HOME/Library/Containers/org.mixxx.mixxx/Data/Library/Application Support/Mixxx/controllers"
+else
+  MIXXX_DIR="$HOME/.mixxx/controllers"
+fi
+
 MAPPING_DST="$MIXXX_DIR/ISMA-3000.midi.xml"
 
 if [[ ! -f "$MAPPING_SRC" ]]; then

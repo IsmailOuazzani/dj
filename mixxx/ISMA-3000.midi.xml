@@ -18,35 +18,100 @@
     <info>
         <name>ISMA 3000</name>
         <author>ismail</author>
-        <description>Deck A: low EQ knob + wheel (1-beat jump per detent).</description>
+        <description>v0 mapping — deck B only: play, sync, loop in/out/exit, hotcue 1–4, tempo, jog wheel.</description>
     </info>
     <controller id="ISMA 3000">
         <controls>
+            <!-- Deck B buttons (MCP23017 port B: B2–B7, port A: A4–A7) -->
             <control>
-                <group>[EqualizerRack1_[Channel1]_Effect1]</group>
-                <key>parameter1</key>
-                <status>0xB0</status>
+                <group>[Channel2]</group>
+                <key>play</key>
+                <status>0x91</status>
+                <midino>0x24</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>sync_enabled</key>
+                <status>0x91</status>
+                <midino>0x25</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>loop_in</key>
+                <status>0x91</status>
+                <midino>0x26</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>loop_out</key>
+                <status>0x91</status>
+                <midino>0x27</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>reloop_toggle</key>
+                <status>0x91</status>
+                <midino>0x28</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>hotcue_1_activate</key>
+                <status>0x91</status>
+                <midino>0x30</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>hotcue_2_activate</key>
+                <status>0x91</status>
+                <midino>0x31</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>hotcue_3_activate</key>
+                <status>0x91</status>
+                <midino>0x32</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>hotcue_4_activate</key>
+                <status>0x91</status>
+                <midino>0x33</midino>
+                <options>
+                    <Button/>
+                </options>
+            </control>
+            <!-- Deck B jog wheel (CD4067 C0 phase A + C1 phase B); relative encoder: 63=CW, 65=CCW -->
+            <control>
+                <group>[Channel2]</group>
+                <key>jog</key>
+                <status>0xB1</status>
                 <midino>0x16</midino>
                 <options>
-                    <Normal/>
-                </options>
-            </control>
-            <control>
-                <group>[Channel1]</group>
-                <key>beatjump_1_forward</key>
-                <status>0x90</status>
-                <midino>0x40</midino>
-                <options>
-                    <Button/>
-                </options>
-            </control>
-            <control>
-                <group>[Channel1]</group>
-                <key>beatjump_1_backward</key>
-                <status>0x90</status>
-                <midino>0x41</midino>
-                <options>
-                    <Button/>
+                    <SelectKnob/>
                 </options>
             </control>
         </controls>
