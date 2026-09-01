@@ -75,7 +75,6 @@ echo "syncing Mixxx mapping..."
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-MAPPING_SRC="$REPO_ROOT/mixxx/ISMA-3000.midi.xml"
 
 if [[ "$(uname)" == "Darwin" ]]; then
   MIXXX_DIR="$HOME/Library/Containers/org.mixxx.mixxx/Data/Library/Application Support/Mixxx/controllers"
@@ -83,27 +82,33 @@ else
   MIXXX_DIR="$HOME/.mixxx/controllers"
 fi
 
-MAPPING_DST="$MIXXX_DIR/ISMA-3000.midi.xml"
-
-if [[ ! -f "$MAPPING_SRC" ]]; then
-  echo "error: mapping source not found at $MAPPING_SRC" >&2
-  exit 1
-fi
-
 mkdir -p "$MIXXX_DIR"
 
-# Stale symlink from the old setup script — remove it.
-if [[ -L "$MAPPING_DST" ]]; then
-  rm "$MAPPING_DST"
-fi
+# Sync every mapping artifact (XML + script bridge). Mixxx loads the JS file
+# via <scriptfiles> in the XML, so both must land side-by-side in the
+# controllers dir or the mapping errors out on load.
+for name in ISMA-3000.midi.xml ISMA-3000.scripts.js; do
+  src="$REPO_ROOT/mixxx/$name"
+  dst="$MIXXX_DIR/$name"
 
-if [[ -f "$MAPPING_DST" ]] && cmp -s "$MAPPING_SRC" "$MAPPING_DST"; then
-  echo "ok: $MAPPING_DST already up to date"
-else
-  cp "$MAPPING_SRC" "$MAPPING_DST"
-  echo "copied $MAPPING_SRC"
-  echo "    -> $MAPPING_DST"
-fi
+  if [[ ! -f "$src" ]]; then
+    echo "error: mapping source not found at $src" >&2
+    exit 1
+  fi
+
+  # Stale symlink from the old setup script — remove it.
+  if [[ -L "$dst" ]]; then
+    rm "$dst"
+  fi
+
+  if [[ -f "$dst" ]] && cmp -s "$src" "$dst"; then
+    echo "ok: $dst already up to date"
+  else
+    cp "$src" "$dst"
+    echo "copied $src"
+    echo "    -> $dst"
+  fi
+done
 
 echo
 echo "done."

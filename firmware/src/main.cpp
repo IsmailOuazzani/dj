@@ -12,6 +12,11 @@ constexpr uint8_t MUX_S_PINS[4] = {D2, D3, D4, D5};
 // Board is strapped to the default I²C address.
 constexpr uint8_t MCP_ADDR = 0x20;
 
+// Deck B jog wheel — rotary encoder A/B on native GPIO with pin-change interrupts.
+// Common pin wired to GND; INPUT_PULLUP enabled below.
+constexpr uint8_t JOG_PIN_A = D8;  // GPIO20
+constexpr uint8_t JOG_PIN_B = D9;  // GPIO21
+
 // Deck A on MIDI channel 1, deck B on channel 2 — mirrored numbering.
 constexpr uint8_t CC_FILTER    = 7;
 constexpr uint8_t CC_VOLUME    = 20;
@@ -43,10 +48,6 @@ int mux_read(uint8_t ch) {
   return analogRead(MUX_SIG_PIN);
 }
 
-bool mux_read_digital(uint8_t ch) {
-  return mux_read(ch) > 2048;  // 12-bit ADC threshold at midpoint
-}
-
 // Quadrature decode table: QUAD_TABLE[prev_AB][curr_AB] = +1 (CW), -1 (CCW), 0 (invalid/still).
 // AB bit encoding: bit1=A, bit0=B. CW sequence: 00→10→11→01→00.
 static const int8_t QUAD_TABLE[4][4] = {
@@ -55,6 +56,18 @@ static const int8_t QUAD_TABLE[4][4] = {
   {-1,  0,  0,  1},  // prev AB=10
   { 0,  1, -1,  0},  // prev AB=11
 };
+
+volatile uint8_t jog_last_ab = 0;
+volatile int32_t jog_delta = 0;
+
+// Fires on any edge of either phase — decodes on the fly so no transition is missed
+// even during fast spins. Kept minimal (no Serial, no MIDI) so the ISR stays quick.
+void jog_isr() {
+  uint8_t ab = (digitalRead(JOG_PIN_A) ? 2 : 0) |
+               (digitalRead(JOG_PIN_B) ? 1 : 0);
+  jog_delta += QUAD_TABLE[jog_last_ab][ab];
+  jog_last_ab = ab;
+}
 
 struct Pot {
   uint8_t mux_ch;
@@ -73,19 +86,7 @@ struct Button {
   unsigned long last_change_ms = 0;
 };
 
-struct QuadEncoder {
-  uint8_t mux_ch_a;
-  uint8_t mux_ch_b;
-  uint8_t cc;
-  uint8_t channel;
-  uint8_t last_ab = 0;
-};
-
 Pot pots[] = {
-};
-
-QuadEncoder encoders[] = {
-  {0, 1, CC_JOG, 2},  // deck B jog wheel — CD4067 C0 (phase A) + C1 (phase B)
 };
 
 Button buttons[] = {
@@ -110,6 +111,13 @@ void setup() {
 
   mcp_ok = mcp.begin_I2C(MCP_ADDR);
   for (auto& b : buttons) mcp.pinMode(b.mcp_pin, INPUT_PULLUP);
+
+  pinMode(JOG_PIN_A, INPUT_PULLUP);
+  pinMode(JOG_PIN_B, INPUT_PULLUP);
+  jog_last_ab = (digitalRead(JOG_PIN_A) ? 2 : 0) |
+                (digitalRead(JOG_PIN_B) ? 1 : 0);
+  attachInterrupt(digitalPinToInterrupt(JOG_PIN_A), jog_isr, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(JOG_PIN_B), jog_isr, CHANGE);
 
   MIDI.begin(MIDI_CHANNEL_OMNI);
 }
@@ -138,17 +146,17 @@ void loop() {
     Serial.printf("CC%u ch%u: %d\n", p.cc, p.channel, value7);
   }
 
-  for (auto& e : encoders) {
-    uint8_t ab = (mux_read_digital(e.mux_ch_a) ? 2 : 0) |
-                 (mux_read_digital(e.mux_ch_b) ? 1 : 0);
-    if (ab != e.last_ab) {
-      int8_t dir = QUAD_TABLE[e.last_ab][ab];
-      if (dir != 0) {
-        MIDI.sendControlChange(e.cc, dir > 0 ? 63 : 65, e.channel);
-        Serial.printf("ENC ch%u: %s\n", e.channel, dir > 0 ? "CW" : "CCW");
-      }
-      e.last_ab = ab;
-    }
+  noInterrupts();
+  int32_t delta = jog_delta;
+  jog_delta = 0;
+  interrupts();
+  if (delta != 0) {
+    // Two's-complement relative for Mixxx SelectKnob: 1 = +1 CW, 127 = -1 CCW.
+    // One MIDI per quadrature transition — Mixxx handles the volume fine over USB.
+    const int32_t n = delta > 0 ? delta : -delta;
+    const uint8_t value = delta > 0 ? 1 : 127;
+    for (int32_t i = 0; i < n; i++) MIDI.sendControlChange(CC_JOG, value, 2);
+    Serial.printf("JOG delta: %ld\n", (long)delta);
   }
 
   for (auto& b : buttons) {

@@ -21,6 +21,9 @@
         <description>v0 mapping — deck B only: play, sync, loop in/out/exit, hotcue 1–4, tempo, jog wheel.</description>
     </info>
     <controller id="ISMA 3000">
+        <scriptfiles>
+            <file filename="ISMA-3000.scripts.js" functionprefix="ISMA3000"/>
+        </scriptfiles>
         <controls>
             <!-- Deck B buttons (MCP23017 port B: B2–B7, port A: A4–A7) -->
             <control>
@@ -104,14 +107,16 @@
                     <Button/>
                 </options>
             </control>
-            <!-- Deck B jog wheel (CD4067 C0 phase A + C1 phase B); relative encoder: 63=CW, 65=CCW -->
+            <!-- Deck B jog wheel — rotary encoder on Nano D8/D9 (GPIO20/21); two's-complement relative.
+                 Routed through ISMA3000.jogB in ISMA-3000.scripts.js to drive scratch2 (visible waveform scrub)
+                 instead of the built-in `jog` control (pitch bend only, invisible when paused). -->
             <control>
                 <group>[Channel2]</group>
-                <key>jog</key>
+                <key>ISMA3000.jogB</key>
                 <status>0xB1</status>
                 <midino>0x16</midino>
                 <options>
-                    <SelectKnob/>
+                    <Script-Binding/>
                 </options>
             </control>
         </controls>
