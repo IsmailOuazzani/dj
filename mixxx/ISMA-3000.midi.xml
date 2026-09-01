@@ -32,7 +32,7 @@
                 <status>0x91</status>
                 <midino>0x24</midino>
                 <options>
-                    <Button/>
+                    <Normal/>
                 </options>
             </control>
             <control>
@@ -41,7 +41,7 @@
                 <status>0x91</status>
                 <midino>0x25</midino>
                 <options>
-                    <Button/>
+                    <Normal/>
                 </options>
             </control>
             <control>
@@ -50,7 +50,7 @@
                 <status>0x91</status>
                 <midino>0x26</midino>
                 <options>
-                    <Button/>
+                    <Normal/>
                 </options>
             </control>
             <control>
@@ -59,16 +59,18 @@
                 <status>0x91</status>
                 <midino>0x27</midino>
                 <options>
-                    <Button/>
+                    <Normal/>
                 </options>
             </control>
+            <!-- Matches Pioneer DDJ-400 RELOOP/EXIT: one button toggles the loop off/on
+                 based on current state. Pairs cleanly with loop_in (0x26) + loop_out (0x27). -->
             <control>
                 <group>[Channel2]</group>
                 <key>reloop_toggle</key>
                 <status>0x91</status>
                 <midino>0x28</midino>
                 <options>
-                    <Button/>
+                    <Normal/>
                 </options>
             </control>
             <control>
@@ -77,7 +79,7 @@
                 <status>0x91</status>
                 <midino>0x30</midino>
                 <options>
-                    <Button/>
+                    <Normal/>
                 </options>
             </control>
             <control>
@@ -86,7 +88,7 @@
                 <status>0x91</status>
                 <midino>0x31</midino>
                 <options>
-                    <Button/>
+                    <Normal/>
                 </options>
             </control>
             <control>
@@ -95,7 +97,7 @@
                 <status>0x91</status>
                 <midino>0x32</midino>
                 <options>
-                    <Button/>
+                    <Normal/>
                 </options>
             </control>
             <control>
@@ -104,7 +106,7 @@
                 <status>0x91</status>
                 <midino>0x33</midino>
                 <options>
-                    <Button/>
+                    <Normal/>
                 </options>
             </control>
             <!-- Deck B jog wheel — rotary encoder on Nano D8/D9 (GPIO20/21); two's-complement relative.

@@ -168,9 +168,17 @@ void loop() {
     if (now - b.last_change_ms < DEBOUNCE_MS) continue;
     if (reading == b.last_stable) continue;
     b.last_stable = reading;
+    // Send both press (NoteOn) AND release (NoteOff). Mixxx's <Normal/> option
+    // treats value 0 / NoteOff as "released"; without the release edge, controls
+    // like loop_in / loop_out / hotcue_*_activate stay "held" forever and their
+    // press-and-hold branches (move loop point, preview cue) fire instead of the
+    // one-shot branches (set loop point, jump to cue).
     if (reading == LOW) {
       MIDI.sendNoteOn(b.note, 127, b.channel);
       Serial.printf("BTN ch%u note 0x%02X: press\n", b.channel, b.note);
+    } else {
+      MIDI.sendNoteOff(b.note, 0, b.channel);
+      Serial.printf("BTN ch%u note 0x%02X: release\n", b.channel, b.note);
     }
   }
 }
