@@ -44,7 +44,7 @@ bool boot_diag_printed = false;
 
 int mux_read(uint8_t ch) {
   for (int i = 0; i < 4; i++) digitalWrite(MUX_S_PINS[i], (ch >> i) & 1);
-  delayMicroseconds(5);  // let mux settle before the ADC samples
+  delayMicroseconds(50);  // CD4067 tON max ~15ns but RC on SIG line needs longer to settle
   return analogRead(MUX_SIG_PIN);
 }
 
@@ -87,6 +87,7 @@ struct Button {
 };
 
 Pot pots[] = {
+  {2, CC_TEMPO, 2},  // deck B tempo slider — CD4067 channel labeled C2 (Y2)
 };
 
 Button buttons[] = {
