@@ -140,7 +140,7 @@ void loop() {
   for (auto& p : pots) {
     if (now - p.last_send_ms < POT_SEND_INTERVAL_MS) continue;
     const int value7 = mux_read(p.mux_ch) >> 5;
-    if (value7 == p.last_sent) continue;
+    if (abs(value7 - p.last_sent) < 2) continue;
     MIDI.sendControlChange(p.cc, value7, p.channel);
     p.last_sent = value7;
     p.last_send_ms = now;

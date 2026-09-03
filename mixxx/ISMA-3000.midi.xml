@@ -109,6 +109,16 @@
                     <Normal/>
                 </options>
             </control>
+            <!-- Deck B tempo slider — PTNS2-6015M-B10 wiper on CD4067 C2; 7-bit absolute CC -->
+            <control>
+                <group>[Channel2]</group>
+                <key>rate</key>
+                <status>0xB1</status>
+                <midino>0x15</midino>
+                <options>
+                    <Normal/>
+                </options>
+            </control>
             <!-- Deck B jog wheel — rotary encoder on Nano D8/D9 (GPIO20/21); two's-complement relative.
                  Routed through ISMA3000.jogB in ISMA-3000.scripts.js to drive scratch2 (visible waveform scrub)
                  instead of the built-in `jog` control (pitch bend only, invisible when paused). -->
