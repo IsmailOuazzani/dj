@@ -1,11 +1,12 @@
 // Script bridge for the ISMA 3000 mapping.
 //
-// The deck B jog wheel is a rotary encoder (not a touch-sensitive platter), so
+// Both jog wheels are rotary encoders (not touch-sensitive platters), so
 // Mixxx's built-in <SelectKnob/> path can only drive `jog` (subtle pitch bend
 // on a playing track) — no visible scrub. To scrub the waveform we drive
-// `scratch2` via engine.scratchTick, which needs enable/disable calls around
-// bursts of movement. This bridge auto-enables on the first tick and disables
-// after a short idle window since a rotary encoder has no touch signal.
+// `scratch1`/`scratch2` via engine.scratchTick, which needs enable/disable
+// calls around bursts of movement. This bridge auto-enables on the first tick
+// and disables after a short idle window since a rotary encoder has no touch
+// signal.
 //
 // Docs:
 //   https://github.com/mixxxdj/mixxx/wiki/Midi-Scripting
@@ -20,6 +21,11 @@ ISMA3000.RPM = 33 + 1 / 3;          // vinyl feel
 ISMA3000.ALPHA = 1.0 / 8;           // scratch filter (Mixxx defaults)
 ISMA3000.BETA  = ISMA3000.ALPHA / 32;
 
+ISMA3000.deckA = {
+    scratching: false,
+    idleTimer: 0,
+};
+
 ISMA3000.deckB = {
     scratching: false,
     idleTimer: 0,
@@ -28,29 +34,43 @@ ISMA3000.deckB = {
 ISMA3000.init = function (id, debug) {};
 
 ISMA3000.shutdown = function () {
+    if (ISMA3000.deckA.scratching) {
+        engine.scratchDisable(1, false);
+        ISMA3000.deckA.scratching = false;
+    }
     if (ISMA3000.deckB.scratching) {
         engine.scratchDisable(2, false);
         ISMA3000.deckB.scratching = false;
     }
 };
 
-ISMA3000.jogB = function (channel, control, value, status, group) {
+// Shared by jogA/jogB — deckNum is the Mixxx scratch channel (1 or 2), state is
+// that deck's {scratching, idleTimer} bookkeeping object.
+ISMA3000.jogTick = function (deckNum, state, value) {
     // Two's-complement MIDI relative decode: 1..63 = +1..+63, 65..127 = -63..-1.
     var delta = (value < 64) ? value : value - 128;
 
-    if (!ISMA3000.deckB.scratching) {
-        engine.scratchEnable(2, ISMA3000.INTERVALS_PER_REV, ISMA3000.RPM,
+    if (!state.scratching) {
+        engine.scratchEnable(deckNum, ISMA3000.INTERVALS_PER_REV, ISMA3000.RPM,
                              ISMA3000.ALPHA, ISMA3000.BETA);
-        ISMA3000.deckB.scratching = true;
+        state.scratching = true;
     }
-    engine.scratchTick(2, delta);
+    engine.scratchTick(deckNum, delta);
 
-    if (ISMA3000.deckB.idleTimer !== 0) {
-        engine.stopTimer(ISMA3000.deckB.idleTimer);
+    if (state.idleTimer !== 0) {
+        engine.stopTimer(state.idleTimer);
     }
-    ISMA3000.deckB.idleTimer = engine.beginTimer(ISMA3000.SCRATCH_IDLE_MS, function () {
-        engine.scratchDisable(2, true);
-        ISMA3000.deckB.scratching = false;
-        ISMA3000.deckB.idleTimer = 0;
+    state.idleTimer = engine.beginTimer(ISMA3000.SCRATCH_IDLE_MS, function () {
+        engine.scratchDisable(deckNum, true);
+        state.scratching = false;
+        state.idleTimer = 0;
     }, true);
+};
+
+ISMA3000.jogA = function (channel, control, value, status, group) {
+    ISMA3000.jogTick(1, ISMA3000.deckA, value);
+};
+
+ISMA3000.jogB = function (channel, control, value, status, group) {
+    ISMA3000.jogTick(2, ISMA3000.deckB, value);
 };

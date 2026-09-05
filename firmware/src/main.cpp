@@ -17,10 +17,14 @@ constexpr uint8_t CHIP_B = 0;  // right deck — un-bridged board
 constexpr uint8_t CHIP_A = 1;  // left deck  — `D0` bridged
 constexpr uint8_t MCP_ADDR[2] = {0x20, 0x21};
 
-// Deck B jog wheel — rotary encoder A/B on native GPIO with pin-change interrupts.
-// Common pin wired to GND; INPUT_PULLUP enabled below.
-constexpr uint8_t JOG_PIN_A = D8;  // GPIO20
-constexpr uint8_t JOG_PIN_B = D9;  // GPIO21
+// Deck A + deck B jog wheels — rotary encoder A/B pairs on native GPIO with
+// pin-change interrupts. Common pin wired to GND; INPUT_PULLUP enabled below.
+// Deck A on D7/D6, deck B on D8/D9 — no pin overlap, both enabled.
+constexpr uint8_t JOG_A_PIN_A = D7;  // GPIO19 — deck A phase A
+constexpr uint8_t JOG_A_PIN_B = D6;  // GPIO18 — deck A phase B
+constexpr uint8_t JOG_B_PIN_A = D8;  // GPIO20 — deck B phase A
+constexpr uint8_t JOG_B_PIN_B = D9;  // GPIO21 — deck B phase B
+constexpr bool JOG_B_ENABLED = true;
 
 // Deck A on MIDI channel 1, deck B on channel 2 — mirrored numbering.
 constexpr uint8_t CC_FILTER    = 7;
@@ -69,16 +73,25 @@ static const int8_t QUAD_TABLE[4][4] = {
   { 0,  1, -1,  0},  // prev AB=11
 };
 
-volatile uint8_t jog_last_ab = 0;
-volatile int32_t jog_delta = 0;
+volatile uint8_t jogA_last_ab = 0;
+volatile int32_t jogA_delta = 0;
+volatile uint8_t jogB_last_ab = 0;
+volatile int32_t jogB_delta = 0;
 
-// Fires on any edge of either phase — decodes on the fly so no transition is missed
+// Fire on any edge of either phase — decode on the fly so no transition is missed
 // even during fast spins. Kept minimal (no Serial, no MIDI) so the ISR stays quick.
-void jog_isr() {
-  uint8_t ab = (digitalRead(JOG_PIN_A) ? 2 : 0) |
-               (digitalRead(JOG_PIN_B) ? 1 : 0);
-  jog_delta += QUAD_TABLE[jog_last_ab][ab];
-  jog_last_ab = ab;
+void jogA_isr() {
+  uint8_t ab = (digitalRead(JOG_A_PIN_A) ? 2 : 0) |
+               (digitalRead(JOG_A_PIN_B) ? 1 : 0);
+  jogA_delta += QUAD_TABLE[jogA_last_ab][ab];
+  jogA_last_ab = ab;
+}
+
+void jogB_isr() {
+  uint8_t ab = (digitalRead(JOG_B_PIN_A) ? 2 : 0) |
+               (digitalRead(JOG_B_PIN_B) ? 1 : 0);
+  jogB_delta += QUAD_TABLE[jogB_last_ab][ab];
+  jogB_last_ab = ab;
 }
 
 struct Pot {
@@ -100,39 +113,41 @@ struct Button {
 };
 
 // All on the SparkFun CD74HC4067 breakout ("red board"); numbers are mux channels.
-// Rotary bank rewired to occupy one contiguous block, channels 2-10; sliders
-// (crossfader + per-deck volume) stay on their original channels 13-15.
-// Deck B bass moved 5->8 and deck B's old channel 5 is now deck B mid,
-// freeing channel 6 for deck A mid (new — no CC existed for mid before this).
+// Sliders (crossfader + per-deck volume) stay on their original channels 13-15.
+// Channel 8's wiring is bad — it bleeds into other channels' readings — so it's
+// dropped entirely rather than debugged further right now. Bass moved off its
+// old channels (7, 8) onto 6/5 (mid's old channels) since those read clean.
+// Mid has no pot until it gets its own known-good channel; CC_MID is kept
+// defined (and still bound in the XML) for whenever that happens.
 Pot pots[] = {
   // Sliding pots
   {15, CC_CROSSFADER, 1},  // crossfader        — global, ch 1
-  {14, CC_VOLUME,     1},  // deck A volume fader
-  {13, CC_VOLUME,     2},  // deck B volume fader
+  {14, CC_VOLUME,     2},  // deck B volume fader — flipped from ch13
+  {13, CC_VOLUME,     1},  // deck A volume fader — flipped from ch14
   // Rotary pots
   {10, CC_FILTER,     1},  // deck A filter
   { 9, CC_FILTER,     2},  // deck B filter
-  { 8, CC_BASS,       2},  // deck B bass       — moved off channel 5
-  { 7, CC_BASS,       1},  // deck A bass
-  { 6, CC_MID,        1},  // deck A mid        — new
-  { 5, CC_MID,        2},  // deck B mid        — new, reuses deck B's old bass channel
+  { 6, CC_BASS,       1},  // deck A bass       — moved off channel 7
+  { 5, CC_BASS,       2},  // deck B bass       — moved off channel 8 (bad wiring)
   { 4, CC_GAIN,       1},  // deck A gain/trim
   { 3, CC_GAIN,       2},  // deck B gain/trim
   { 2, CC_FX_SUPER,   1},  // effect filter knob — global, ch 1
 };
 
 Button buttons[] = {
-  // Deck B (right) — expander at 0x20.
-  {CHIP_B, 10, NOTE_PLAY,      2}, // deck B play/pause — MCP pad labeled B2 (GPB2)
-  {CHIP_B, 11, NOTE_SHIFT,     2}, // deck B shift      — MCP pad labeled B3 (GPB3)
+  // Deck B (right) — expander at 0x20. Wired to the identical MCP pad layout
+  // as deck A (same pads, other chip) — mirrors deck A's entries below 1:1,
+  // just CHIP_B / channel 2 instead of CHIP_A / channel 1.
+  {CHIP_B, 15, NOTE_LOOP_IN,   2}, // deck B loop in    — MCP pad labeled B7 (GPB7)
+  {CHIP_B, 14, NOTE_LOOP_OUT,  2}, // deck B loop out   — MCP pad labeled B6 (GPB6)
+  {CHIP_B, 13, NOTE_LOOP_EXIT, 2}, // deck B loop toggle— MCP pad labeled B5 (GPB5)
   {CHIP_B, 12, NOTE_SYNC,      2}, // deck B sync       — MCP pad labeled B4 (GPB4)
-  {CHIP_B, 13, NOTE_LOOP_EXIT, 2}, // deck B loop exit  — MCP pad labeled B5 (GPB5)
-  {CHIP_B, 14, NOTE_LOOP_IN,   2}, // deck B loop in    — MCP pad labeled B6 (GPB6)
-  {CHIP_B, 15, NOTE_LOOP_OUT,  2}, // deck B loop out   — MCP pad labeled B7 (GPB7)
-  {CHIP_B,  4, NOTE_PAD4,      2}, // deck B pad 4      — MCP pad labeled A4 (GPA4)
-  {CHIP_B,  5, NOTE_PAD3,      2}, // deck B pad 3      — MCP pad labeled A5 (GPA5)
-  {CHIP_B,  6, NOTE_PAD2,      2}, // deck B pad 2      — MCP pad labeled A6 (GPA6)
-  {CHIP_B,  7, NOTE_PAD1,      2}, // deck B pad 1      — MCP pad labeled A7 (GPA7)
+  {CHIP_B, 11, NOTE_SHIFT,     2}, // deck B shift      — MCP pad labeled B3 (GPB3)
+  {CHIP_B,  3, NOTE_PLAY,      2}, // deck B start      — MCP pad labeled A3 (GPA3)
+  {CHIP_B,  4, NOTE_PAD1,      2}, // deck B pad 1      — MCP pad labeled A4 (GPA4)
+  {CHIP_B,  5, NOTE_PAD2,      2}, // deck B pad 2      — MCP pad labeled A5 (GPA5)
+  {CHIP_B,  6, NOTE_PAD3,      2}, // deck B pad 3      — MCP pad labeled A6 (GPA6)
+  {CHIP_B,  7, NOTE_PAD4,      2}, // deck B pad 4      — MCP pad labeled A7 (GPA7)
 
   // Deck A (left) — expander at 0x21. Same notes as deck B, mirrored onto ch 1.
   {CHIP_A, 15, NOTE_LOOP_IN,   1}, // deck A loop in    — MCP pad labeled B7 (GPB7)
@@ -161,12 +176,23 @@ void setup() {
     if (mcp_ok[b.chip]) mcp[b.chip].pinMode(b.mcp_pin, INPUT_PULLUP);
   }
 
-  pinMode(JOG_PIN_A, INPUT_PULLUP);
-  pinMode(JOG_PIN_B, INPUT_PULLUP);
-  jog_last_ab = (digitalRead(JOG_PIN_A) ? 2 : 0) |
-                (digitalRead(JOG_PIN_B) ? 1 : 0);
-  attachInterrupt(digitalPinToInterrupt(JOG_PIN_A), jog_isr, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(JOG_PIN_B), jog_isr, CHANGE);
+  pinMode(JOG_A_PIN_A, INPUT_PULLUP);
+  pinMode(JOG_A_PIN_B, INPUT_PULLUP);
+  jogA_last_ab = (digitalRead(JOG_A_PIN_A) ? 2 : 0) |
+                 (digitalRead(JOG_A_PIN_B) ? 1 : 0);
+  attachInterrupt(digitalPinToInterrupt(JOG_A_PIN_A), jogA_isr, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(JOG_A_PIN_B), jogA_isr, CHANGE);
+
+  if (JOG_B_ENABLED) {
+    pinMode(JOG_B_PIN_A, INPUT_PULLUP);
+    pinMode(JOG_B_PIN_B, INPUT_PULLUP);
+    jogB_last_ab = (digitalRead(JOG_B_PIN_A) ? 2 : 0) |
+                   (digitalRead(JOG_B_PIN_B) ? 1 : 0);
+    attachInterrupt(digitalPinToInterrupt(JOG_B_PIN_A), jogB_isr, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(JOG_B_PIN_B), jogB_isr, CHANGE);
+  }
+  // Deck B jog disabled — interrupt never attaches, so jogB_delta stays 0 and
+  // the loop()'s deck-B MIDI send never fires. No pin conflict with deck A.
 
   MIDI.begin(MIDI_CHANNEL_OMNI);
 }
@@ -199,16 +225,24 @@ void loop() {
   }
 
   noInterrupts();
-  int32_t delta = jog_delta;
-  jog_delta = 0;
+  int32_t deltaA = jogA_delta;
+  int32_t deltaB = -jogB_delta;  // deck B encoder reads backwards vs deck A — sign flipped here
+  jogA_delta = 0;
+  jogB_delta = 0;
   interrupts();
-  if (delta != 0) {
-    // Two's-complement relative for Mixxx SelectKnob: 1 = +1 CW, 127 = -1 CCW.
-    // One MIDI per quadrature transition — Mixxx handles the volume fine over USB.
-    const int32_t n = delta > 0 ? delta : -delta;
-    const uint8_t value = delta > 0 ? 1 : 127;
+  // Two's-complement relative for Mixxx SelectKnob: 1 = +1 CW, 127 = -1 CCW.
+  // One MIDI per quadrature transition — Mixxx handles the volume fine over USB.
+  if (deltaA != 0) {
+    const int32_t n = deltaA > 0 ? deltaA : -deltaA;
+    const uint8_t value = deltaA > 0 ? 1 : 127;
+    for (int32_t i = 0; i < n; i++) MIDI.sendControlChange(CC_JOG, value, 1);
+    Serial.printf("JOG A delta: %ld\n", (long)deltaA);
+  }
+  if (deltaB != 0) {
+    const int32_t n = deltaB > 0 ? deltaB : -deltaB;
+    const uint8_t value = deltaB > 0 ? 1 : 127;
     for (int32_t i = 0; i < n; i++) MIDI.sendControlChange(CC_JOG, value, 2);
-    Serial.printf("JOG delta: %ld\n", (long)delta);
+    Serial.printf("JOG B delta: %ld\n", (long)deltaB);
   }
 
   for (auto& b : buttons) {

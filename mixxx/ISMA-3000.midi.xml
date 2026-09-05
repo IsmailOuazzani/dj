@@ -18,7 +18,7 @@
     <info>
         <name>ISMA 3000</name>
         <author>ismail</author>
-        <description>v0 mapping — buttons: deck A start/sync/loop in-out-toggle/hotcue 1–4, deck B play/sync/loop in-out-exit/hotcue 1–4. Pots: crossfader, per-deck volume/filter/bass/mid/gain, FX knob. Deck B jog wheel via scratch2.</description>
+        <description>v0 mapping — buttons: deck A start/sync/loop in-out-toggle/hotcue 1–4, deck B play/sync/loop in-out-exit/hotcue 1–4. Pots: crossfader, per-deck volume/filter/bass/mid/gain, FX knob. Deck A/B jog wheels via scratch1/scratch2.</description>
     </info>
     <controller id="ISMA 3000">
         <scriptfiles>
@@ -308,9 +308,19 @@
                     <Normal/>
                 </options>
             </control>
-            <!-- Deck B jog wheel — rotary encoder on Nano D8/D9 (GPIO20/21); two's-complement relative.
-                 Routed through ISMA3000.jogB in ISMA-3000.scripts.js to drive scratch2 (visible waveform scrub)
+            <!-- Deck A/B jog wheels — rotary encoders on Nano D7/D8 (deck A) and D6/D9 (deck B);
+                 two's-complement relative. Routed through ISMA3000.jogA/jogB in
+                 ISMA-3000.scripts.js to drive scratch1/scratch2 (visible waveform scrub)
                  instead of the built-in `jog` control (pitch bend only, invisible when paused). -->
+            <control>
+                <group>[Channel1]</group>
+                <key>ISMA3000.jogA</key>
+                <status>0xB0</status>
+                <midino>0x16</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
             <control>
                 <group>[Channel2]</group>
                 <key>ISMA3000.jogB</key>
