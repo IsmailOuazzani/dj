@@ -125,12 +125,12 @@ Pot pots[] = {
   {14, CC_VOLUME,     2},  // deck B volume fader — flipped from ch13
   {13, CC_VOLUME,     1},  // deck A volume fader — flipped from ch14
   // Rotary pots
-  {10, CC_FILTER,     1},  // deck A filter
-  { 9, CC_FILTER,     2},  // deck B filter
-  { 6, CC_BASS,       1},  // deck A bass       — moved off channel 7
-  { 5, CC_BASS,       2},  // deck B bass       — moved off channel 8 (bad wiring)
-  { 4, CC_GAIN,       1},  // deck A gain/trim
-  { 3, CC_GAIN,       2},  // deck B gain/trim
+  { 6, CC_FILTER,     1},  // deck A filter     — moved from channel 10
+  { 5, CC_FILTER,     2},  // deck B filter     — moved from channel 9
+  { 4, CC_BASS,       1},  // deck A bass       — moved from channel 6
+  { 3, CC_BASS,       2},  // deck B bass       — moved from channel 5
+  {10, CC_GAIN,       1},  // deck A gain/trim  — moved from channel 4
+  { 9, CC_GAIN,       2},  // deck B gain/trim  — moved from channel 3
   { 2, CC_FX_SUPER,   1},  // effect filter knob — global, ch 1
 };
 
