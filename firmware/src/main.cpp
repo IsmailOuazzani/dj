@@ -29,6 +29,7 @@ constexpr uint8_t CC_TEMPO     = 21;
 constexpr uint8_t CC_JOG       = 22;
 constexpr uint8_t CC_BASS      = 23;
 constexpr uint8_t CC_GAIN      = 24;
+constexpr uint8_t CC_MID       = 27;
 // Crossfader and the FX knob are global, not per-deck: they ride channel 1 with
 // their own CC numbers rather than being mirrored across both channels.
 constexpr uint8_t CC_CROSSFADER = 25;
@@ -99,8 +100,10 @@ struct Button {
 };
 
 // All on the SparkFun CD74HC4067 breakout ("red board"); numbers are mux channels.
-// The deck B tempo slider that used to sit on channel 2 was removed in the rewiring
-// that added this bank — channel 2 is now the FX knob.
+// Rotary bank rewired to occupy one contiguous block, channels 2-10; sliders
+// (crossfader + per-deck volume) stay on their original channels 13-15.
+// Deck B bass moved 5->8 and deck B's old channel 5 is now deck B mid,
+// freeing channel 6 for deck A mid (new — no CC existed for mid before this).
 Pot pots[] = {
   // Sliding pots
   {15, CC_CROSSFADER, 1},  // crossfader        — global, ch 1
@@ -109,8 +112,10 @@ Pot pots[] = {
   // Rotary pots
   {10, CC_FILTER,     1},  // deck A filter
   { 9, CC_FILTER,     2},  // deck B filter
+  { 8, CC_BASS,       2},  // deck B bass       — moved off channel 5
   { 7, CC_BASS,       1},  // deck A bass
-  { 5, CC_BASS,       2},  // deck B bass
+  { 6, CC_MID,        1},  // deck A mid        — new
+  { 5, CC_MID,        2},  // deck B mid        — new, reuses deck B's old bass channel
   { 4, CC_GAIN,       1},  // deck A gain/trim
   { 3, CC_GAIN,       2},  // deck B gain/trim
   { 2, CC_FX_SUPER,   1},  // effect filter knob — global, ch 1

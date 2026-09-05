@@ -18,7 +18,7 @@
     <info>
         <name>ISMA 3000</name>
         <author>ismail</author>
-        <description>v0 mapping — buttons: deck A start/sync/loop in-out-toggle/hotcue 1–4, deck B play/sync/loop in-out-exit/hotcue 1–4. Pots: crossfader, per-deck volume/filter/bass/gain, FX knob. Deck B jog wheel via scratch2.</description>
+        <description>v0 mapping — buttons: deck A start/sync/loop in-out-toggle/hotcue 1–4, deck B play/sync/loop in-out-exit/hotcue 1–4. Pots: crossfader, per-deck volume/filter/bass/mid/gain, FX knob. Deck B jog wheel via scratch2.</description>
     </info>
     <controller id="ISMA 3000">
         <scriptfiles>
@@ -258,6 +258,25 @@
                 <key>parameter1</key>
                 <status>0xB1</status>
                 <midino>0x17</midino>
+                <options>
+                    <Normal/>
+                </options>
+            </control>
+            <!-- Mid EQ — new pots on mux channels 6 (deck A) / 5 (deck B), CC 0x1B (27). -->
+            <control>
+                <group>[EqualizerRack1_[Channel1]_Effect1]</group>
+                <key>parameter2</key>
+                <status>0xB0</status>
+                <midino>0x1B</midino>
+                <options>
+                    <Normal/>
+                </options>
+            </control>
+            <control>
+                <group>[EqualizerRack1_[Channel2]_Effect1]</group>
+                <key>parameter2</key>
+                <status>0xB1</status>
+                <midino>0x1B</midino>
                 <options>
                     <Normal/>
                 </options>
