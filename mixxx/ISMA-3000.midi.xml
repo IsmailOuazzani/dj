@@ -18,7 +18,7 @@
     <info>
         <name>ISMA 3000</name>
         <author>ismail</author>
-        <description>v0 mapping — buttons: deck A start/sync/loop in-out-toggle/hotcue 1–4, deck B play/sync/loop in-out-exit/hotcue 1–4. Pots: crossfader, per-deck volume/filter/bass/mid/gain, FX knob. Deck A/B jog wheels via scratch1/scratch2.</description>
+        <description>v0 mapping — buttons: deck A start/sync/loop in-out-toggle/hotcue 1–4, deck B play/sync/loop in-out-exit/hotcue 1–4. Shift+hotcue clears the cue; shift+jog fast-seeks. Pots: crossfader, per-deck volume/filter/bass/mid, FX knob. No gain/trim or tempo pots. Deck A/B jog wheels via scratch1/scratch2.</description>
     </info>
     <controller id="ISMA 3000">
         <scriptfiles>
@@ -73,46 +73,47 @@
                     <Normal/>
                 </options>
             </control>
+            <!-- Hotcues are Script-Bindings (not plain hotcue_N_activate) so
+                 shift+pad can clear instead of activate — see ISMA3000.hotcue
+                 in ISMA-3000.scripts.js. -->
             <control>
                 <group>[Channel2]</group>
-                <key>hotcue_1_activate</key>
+                <key>ISMA3000.hotcue1B</key>
                 <status>0x91</status>
                 <midino>0x30</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <group>[Channel2]</group>
-                <key>hotcue_2_activate</key>
+                <key>ISMA3000.hotcue2B</key>
                 <status>0x91</status>
                 <midino>0x31</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <group>[Channel2]</group>
-                <key>hotcue_3_activate</key>
+                <key>ISMA3000.hotcue3B</key>
                 <status>0x91</status>
                 <midino>0x32</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <group>[Channel2]</group>
-                <key>hotcue_4_activate</key>
+                <key>ISMA3000.hotcue4B</key>
                 <status>0x91</status>
                 <midino>0x33</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <!-- Deck A buttons (MCP23017 at 0x21 — port B: B3–B7, port A: A3–A7).
-                 Same note numbers as deck B, mirrored onto MIDI channel 1 (status 0x90).
-                 Shift (0x29) is emitted by the firmware but intentionally unbound —
-                 it's a modifier, not a Mixxx control. Same as deck B. -->
+                 Same note numbers as deck B, mirrored onto MIDI channel 1 (status 0x90). -->
             <control>
                 <group>[Channel1]</group>
                 <key>play</key>
@@ -160,45 +161,66 @@
             </control>
             <control>
                 <group>[Channel1]</group>
-                <key>hotcue_1_activate</key>
+                <key>ISMA3000.hotcue1A</key>
                 <status>0x90</status>
                 <midino>0x30</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <group>[Channel1]</group>
-                <key>hotcue_2_activate</key>
+                <key>ISMA3000.hotcue2A</key>
                 <status>0x90</status>
                 <midino>0x31</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <group>[Channel1]</group>
-                <key>hotcue_3_activate</key>
+                <key>ISMA3000.hotcue3A</key>
                 <status>0x90</status>
                 <midino>0x32</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <group>[Channel1]</group>
-                <key>hotcue_4_activate</key>
+                <key>ISMA3000.hotcue4A</key>
                 <status>0x90</status>
                 <midino>0x33</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
+                </options>
+            </control>
+            <!-- Shift buttons — plain momentary presses on their own MCP pad (note
+                 0x29), tracked in script as ISMA3000.shift[1|2] rather than bound to
+                 a Mixxx control. Consulted by the hotcue and jog handlers above/below. -->
+            <control>
+                <group>[Channel1]</group>
+                <key>ISMA3000.shiftA</key>
+                <status>0x90</status>
+                <midino>0x29</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>ISMA3000.shiftB</key>
+                <status>0x91</status>
+                <midino>0x29</midino>
+                <options>
+                    <Script-Binding/>
                 </options>
             </control>
             <!-- Pots on the CD74HC4067 mux ("red board"). Absolute 7-bit CCs.
                  Deck A = status 0xB0 (ch 1), deck B = 0xB1 (ch 2).
                  Crossfader + FX knob are global and ride ch 1 on their own CCs.
-                 The deck B tempo slider (rate, CC 0x15) came off channel 2 in the
-                 rewiring that added this bank — channel 2 is the FX knob now. -->
+                 No tempo/rate or gain/trim (pregain) pots — removed entirely,
+                 no CC or mux channel assigned to either. -->
             <control>
                 <group>[Master]</group>
                 <key>crossfader</key>
@@ -282,24 +304,6 @@
                 </options>
             </control>
             <control>
-                <group>[Channel1]</group>
-                <key>pregain</key>
-                <status>0xB0</status>
-                <midino>0x18</midino>
-                <options>
-                    <Normal/>
-                </options>
-            </control>
-            <control>
-                <group>[Channel2]</group>
-                <key>pregain</key>
-                <status>0xB1</status>
-                <midino>0x18</midino>
-                <options>
-                    <Normal/>
-                </options>
-            </control>
-            <control>
                 <group>[EffectRack1_EffectUnit1]</group>
                 <key>super1</key>
                 <status>0xB0</status>
@@ -308,10 +312,11 @@
                     <Normal/>
                 </options>
             </control>
-            <!-- Deck A/B jog wheels — rotary encoders on Nano D7/D8 (deck A) and D6/D9 (deck B);
+            <!-- Deck A/B jog wheels — rotary encoders on Nano D7/D6 (deck A) and D8/D9 (deck B);
                  two's-complement relative. Routed through ISMA3000.jogA/jogB in
                  ISMA-3000.scripts.js to drive scratch1/scratch2 (visible waveform scrub)
-                 instead of the built-in `jog` control (pitch bend only, invisible when paused). -->
+                 instead of the built-in `jog` control (pitch bend only, invisible when paused).
+                 Shift+jog fast-seeks instead of scratching — see ISMA3000.jogTick. -->
             <control>
                 <group>[Channel1]</group>
                 <key>ISMA3000.jogA</key>

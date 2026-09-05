@@ -29,10 +29,8 @@ constexpr bool JOG_B_ENABLED = true;
 // Deck A on MIDI channel 1, deck B on channel 2 — mirrored numbering.
 constexpr uint8_t CC_FILTER    = 7;
 constexpr uint8_t CC_VOLUME    = 20;
-constexpr uint8_t CC_TEMPO     = 21;
 constexpr uint8_t CC_JOG       = 22;
 constexpr uint8_t CC_BASS      = 23;
-constexpr uint8_t CC_GAIN      = 24;
 constexpr uint8_t CC_MID       = 27;
 // Crossfader and the FX knob are global, not per-deck: they ride channel 1 with
 // their own CC numbers rather than being mirrored across both channels.
@@ -119,7 +117,8 @@ struct Button {
 // dropped entirely rather than debugged further right now. Bass moved off its
 // old channels (7, 8) onto 6/5 (mid's old channels) since those read clean.
 // Mid has no pot until it gets its own known-good channel; CC_MID is kept
-// defined (and still bound in the XML) for whenever that happens.
+// defined (and still bound in the XML) for whenever that happens. Gain/trim
+// (was channels 10/9) removed entirely — no pot, no CC, no XML binding.
 Pot pots[] = {
   // Sliding pots
   {15, CC_CROSSFADER, 1},  // crossfader        — global, ch 1
@@ -130,8 +129,6 @@ Pot pots[] = {
   { 5, CC_FILTER,     2, true},  // deck B filter     — moved from channel 9
   { 4, CC_BASS,       1, true},  // deck A bass       — moved from channel 6
   { 3, CC_BASS,       2, true},  // deck B bass       — moved from channel 5
-  {10, CC_GAIN,       1, true},  // deck A gain/trim  — moved from channel 4
-  { 9, CC_GAIN,       2, true},  // deck B gain/trim  — moved from channel 3
   { 2, CC_FX_SUPER,   1, true},  // effect filter knob — global, ch 1
 };
 
