@@ -98,6 +98,7 @@ struct Pot {
   uint8_t mux_ch;
   uint8_t cc;
   uint8_t channel;
+  bool reversed = false;  // true flips the 0-127 reading (rotary pots read backwards)
   int last_sent = -1;
   unsigned long last_send_ms = 0;
 };
@@ -124,14 +125,14 @@ Pot pots[] = {
   {15, CC_CROSSFADER, 1},  // crossfader        — global, ch 1
   {14, CC_VOLUME,     2},  // deck B volume fader — flipped from ch13
   {13, CC_VOLUME,     1},  // deck A volume fader — flipped from ch14
-  // Rotary pots
-  { 6, CC_FILTER,     1},  // deck A filter     — moved from channel 10
-  { 5, CC_FILTER,     2},  // deck B filter     — moved from channel 9
-  { 4, CC_BASS,       1},  // deck A bass       — moved from channel 6
-  { 3, CC_BASS,       2},  // deck B bass       — moved from channel 5
-  {10, CC_GAIN,       1},  // deck A gain/trim  — moved from channel 4
-  { 9, CC_GAIN,       2},  // deck B gain/trim  — moved from channel 3
-  { 2, CC_FX_SUPER,   1},  // effect filter knob — global, ch 1
+  // Rotary pots — reversed=true: sign flipped per request, sliders left alone
+  { 6, CC_FILTER,     1, true},  // deck A filter     — moved from channel 10
+  { 5, CC_FILTER,     2, true},  // deck B filter     — moved from channel 9
+  { 4, CC_BASS,       1, true},  // deck A bass       — moved from channel 6
+  { 3, CC_BASS,       2, true},  // deck B bass       — moved from channel 5
+  {10, CC_GAIN,       1, true},  // deck A gain/trim  — moved from channel 4
+  { 9, CC_GAIN,       2, true},  // deck B gain/trim  — moved from channel 3
+  { 2, CC_FX_SUPER,   1, true},  // effect filter knob — global, ch 1
 };
 
 Button buttons[] = {
@@ -216,7 +217,8 @@ void loop() {
 
   for (auto& p : pots) {
     if (now - p.last_send_ms < POT_SEND_INTERVAL_MS) continue;
-    const int value7 = mux_read(p.mux_ch) >> 5;
+    int value7 = mux_read(p.mux_ch) >> 5;
+    if (p.reversed) value7 = 127 - value7;
     if (abs(value7 - p.last_sent) < 2) continue;
     MIDI.sendControlChange(p.cc, value7, p.channel);
     p.last_sent = value7;
